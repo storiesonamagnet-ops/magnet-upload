@@ -78,12 +78,11 @@ Neon Moon Market • Feb 28
 <br><br>
 <button id="submitPhotos" style="display:none;">Submit Photos</button>
 
-<div id="cropModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:999; padding:0; box-sizing:border-box; display:flex; flex-direction:column;">
-  <h2 style="margin:10px;">Edit Photo</h2>
-  <div id="cropImageContainer" style="flex:1; overflow:auto; display:flex; justify-content:center; align-items:center;">
-    <img id="cropImage" style="max-width:100%; max-height:100%;">
-  </div>
-  <button id="saveCrop" style="flex-shrink:0; position:sticky; bottom:0; width:100%; padding:15px; font-size:18px; background:black; color:white; border:none; border-radius:0;">Save Crop</button>
+<div id="cropModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:999; padding:20px; overflow:auto;">
+  <h2>Edit Photo</h2>
+  <img id="cropImage" style="max-width:90%; max-height:60vh;">
+  <br><br>
+  <button id="saveCrop">Save Crop</button>
 </div>
 
 <div id="nameScreen" style="display:none; margin-top:30px;">
@@ -125,37 +124,25 @@ photoInput.addEventListener("change", function(){
       editBtn.style.marginLeft = "10px";
 
       editBtn.onclick = function(){
-    if(!img.src) return; // make sure there is an image loaded
+        const cropModal = document.getElementById("cropModal");
+        const cropImage = document.getElementById("cropImage");
+        cropModal.style.display = "block";
+        cropImage.src = img.src;
+        currentImageElement = img;
 
-    const cropModal = document.getElementById("cropModal");
-    const cropImage = document.getElementById("cropImage");
-    cropModal.style.display = "flex"; // show modal as flex
-    cropImage.src = img.src;
-    currentImageElement = img;
-
-    if(cropper){ cropper.destroy(); }
-    cropper = new Cropper(cropImage, {
-        aspectRatio: 1,
-        viewMode: 1,
-        autoCropArea: 1,
-        dragMode: 'move',
-        toggleDragModeOnDblclick: false,
-        minCropBoxWidth: 50,
-        minCropBoxHeight: 50,
-        zoomOnWheel: false,
-        zoomOnTouch: true,
-        background: false,
-        minZoomRatio: 0.4,
-        maxZoomRatio: 1,
-    });
-};
+        if(cropper){ cropper.destroy(); }
+        cropper = new Cropper(cropImage,{
+          aspectRatio:1,
+          viewMode:1
+        });
+      };
 
       wrapper.appendChild(img);
       wrapper.appendChild(editBtn);
       previewContainer.appendChild(wrapper);
     };
     reader.readAsDataURL(files[i]);
-  } 
+  }
 });
 
 // Save crop
