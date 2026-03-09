@@ -124,18 +124,28 @@ photoInput.addEventListener("change", function(){
       editBtn.style.marginLeft = "10px";
 
       editBtn.onclick = function(){
-        const cropModal = document.getElementById("cropModal");
-        const cropImage = document.getElementById("cropImage");
-        cropModal.style.display = "block";
-        cropImage.src = img.src;
-        currentImageElement = img;
-
-        if(cropper){ cropper.destroy(); }
-        cropper = new Cropper(cropImage,{
-          aspectRatio:1,
-          viewMode:1
-        });
-      };
+  const cropModal = document.getElementById("cropModal");
+  const cropImage = document.getElementById("cropImage");
+  cropModal.style.display = "block";
+  
+  // Load the original image file for maximum resolution
+  const file = files[i]; // Use the original File object
+  const readerFull = new FileReader();
+  readerFull.onload = function(eFull){
+    cropImage.src = eFull.target.result;
+    
+    currentImageElement = img;
+    
+    if(cropper){ cropper.destroy(); }
+    cropper = new Cropper(cropImage,{
+      aspectRatio:1,
+      viewMode:1,
+      autoCropArea: 1,
+      responsive: true
+    });
+  };
+  readerFull.readAsDataURL(file);
+};
 
       wrapper.appendChild(img);
       wrapper.appendChild(editBtn);
@@ -145,10 +155,19 @@ photoInput.addEventListener("change", function(){
   }
 });
 
-// Save crop
+// Save crop with higher quality
 document.getElementById("saveCrop").onclick = function(){
-  const canvas = cropper.getCroppedCanvas({width:600, height:600});
-  const croppedImage = canvas.toDataURL("image/jpeg");
+  // Use a larger canvas for sharper output
+  const canvas = cropper.getCroppedCanvas({
+    width: 1200,    
+    height: 1200,
+    imageSmoothingEnabled: true,
+    imageSmoothingQuality: "high"
+  });
+
+  // Export as JPEG with high quality
+  const croppedImage = canvas.toDataURL("image/jpeg", 0.95);
+
   currentImageElement.src = croppedImage;
   document.getElementById("cropModal").style.display = "none";
   cropper.destroy();
