@@ -125,28 +125,30 @@ photoInput.addEventListener("change", function(){
       editBtn.style.marginLeft = "10px";
 
       editBtn.onclick = function(){
-        const cropModal = document.getElementById("cropModal");
-        const cropImage = document.getElementById("cropImage");
-        cropModal.style.display = "block";
-        cropImage.src = img.src;
-        currentImageElement = img;
+    if(!img.src) return; // Prevent modal if no image
 
-        if(cropper){ cropper.destroy(); }
-        cropper = new Cropper(cropImage, {
-  aspectRatio: 1,                // Keep square crop
-  viewMode: 1,                   // Restrict crop box to image bounds
-  autoCropArea: 1,               // Start crop box as large as possible
-  dragMode: 'move',              // Drag moves the crop box, not the image
-  toggleDragModeOnDblclick: false, // Disable double click changing mode
-  minCropBoxWidth: 50,           // Minimum crop box size
-  minCropBoxHeight: 50,
-  zoomOnWheel: false,            // Disable wheel zoom
-  zoomOnTouch: true,             // Enable pinch zoom only
-  background: false,             // Remove gray background
-  minZoomRatio: 0.4,             // Minimum zoom 40%
-  maxZoomRatio: 1,               // Maximum zoom 100%
-});
-      };
+    const cropModal = document.getElementById("cropModal");
+    const cropImage = document.getElementById("cropImage");
+    cropModal.style.display = "flex"; // Show modal
+    cropImage.src = img.src;
+    currentImageElement = img;
+
+    if(cropper){ cropper.destroy(); }
+    cropper = new Cropper(cropImage, {
+        aspectRatio: 1,                // Keep square crop
+        viewMode: 1,                   // Restrict crop box to image bounds
+        autoCropArea: 1,               // Start crop box as large as possible
+        dragMode: 'move',              // Drag moves the crop box, not the image
+        toggleDragModeOnDblclick: false, // Disable double click changing mode
+        minCropBoxWidth: 50,           // Minimum crop box size
+        minCropBoxHeight: 50,
+        zoomOnWheel: false,            // Disable wheel zoom
+        zoomOnTouch: true,             // Enable pinch zoom only
+        background: false,             // Remove gray background
+        minZoomRatio: 0.4,             // Minimum zoom 40%
+        maxZoomRatio: 1,               // Maximum zoom 100%
+    });
+};
 
       wrapper.appendChild(img);
       wrapper.appendChild(editBtn);
