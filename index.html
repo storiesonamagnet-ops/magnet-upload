@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stories on a Magnet Upload</title>
+
+<!-- Cropper.js -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+
+<style>
+body{
+  font-family: Arial, sans-serif;
+  text-align:center;
+  background:#f4f4f4;
+  margin:0;
+  padding:40px;
+}
+
+.container{
+  background:white;
+  max-width:500px;
+  margin:auto;
+  padding:30px;
+  border-radius:10px;
+  box-shadow:0 5px 15px rgba(0,0,0,0.1);
+}
+
+h1{
+  margin-bottom:10px;
+}
+
+.event{
+  color:#777;
+  margin-bottom:25px;
+}
+
+button{
+  background:#000;
+  color:white;
+  border:none;
+  padding:15px 25px;
+  font-size:18px;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+button:hover{
+  opacity:.85;
+}
+
+#previewContainer img{
+  margin-top:10px;
+  border-radius:8px;
+  width:150px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Stories on a Magnet</h1>
+
+<div class="event" id="eventName">
+Neon Moon Market • Feb 28
+</div>
+
+<p>Upload your photos for your custom magnets.</p>
+
+<button onclick="document.getElementById('photoInput').click()">Select Photos</button>
+<input type="file" id="photoInput" multiple accept="image/*" style="display:none">
+
+<div id="previewContainer"></div>
+
+<br><br>
+<button id="submitPhotos" style="display:none;">Submit Photos</button>
+
+<div id="cropModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:999; padding:20px; overflow:auto;">
+  <h2>Edit Photo</h2>
+  <img id="cropImage" style="max-width:90%; max-height:60vh;">
+  <br><br>
+  <button id="saveCrop">Save Crop</button>
+</div>
+
+<div id="nameScreen" style="display:none; margin-top:30px;">
+  <h2>Enter Your Name</h2>
+  <input 
+    id="customerName" 
+    type="text" 
+    placeholder="Your Name"
+    style="padding:12px; font-size:18px; width:80%; border-radius:6px; border:1px solid #ccc;"
+  >
+  <br><br>
+  <button id="submitName">Submit Order</button>
+</div>
+
+<script>
+let cropper;
+let currentImageElement;
+
+const photoInput = document.getElementById("photoInput");
+const previewContainer = document.getElementById("previewContainer");
+
+// Handle photo selection
+photoInput.addEventListener("change", function(){
+  document.getElementById("submitPhotos").style.display = "inline-block";
+  previewContainer.innerHTML = "";
+  const files = photoInput.files;
+
+  for(let i = 0; i < files.length; i++){
+    const reader = new FileReader();
+    reader.onload = function(e){
+      const wrapper = document.createElement("div");
+      wrapper.style.marginTop = "20px";
+
+      const img = document.createElement("img");
+      img.src = e.target.result;
+
+      const editBtn = document.createElement("button");
+      editBtn.innerText = "Edit";
+      editBtn.style.marginLeft = "10px";
+
+      editBtn.onclick = function(){
+        const cropModal = document.getElementById("cropModal");
+        const cropImage = document.getElementById("cropImage");
+        cropModal.style.display = "block";
+        cropImage.src = img.src;
+        currentImageElement = img;
+
+        if(cropper){ cropper.destroy(); }
+        cropper = new Cropper(cropImage,{
+          aspectRatio:1,
+          viewMode:1
+        });
+      };
+
+      wrapper.appendChild(img);
+      wrapper.appendChild(editBtn);
+      previewContainer.appendChild(wrapper);
+    };
+    reader.readAsDataURL(files[i]);
+  }
+});
+
+// Save crop
+document.getElementById("saveCrop").onclick = function(){
+  const canvas = cropper.getCroppedCanvas({width:600, height:600});
+  const croppedImage = canvas.toDataURL("image/jpeg");
+  currentImageElement.src = croppedImage;
+  document.getElementById("cropModal").style.display = "none";
+  cropper.destroy();
+  cropper = null;
+};
+
+// Show name screen
+document.getElementById("submitPhotos").onclick = function(){
+  document.getElementById("nameScreen").style.display = "block";
+  window.scrollTo({top: document.body.scrollHeight, behavior: "smooth"});
+};
+
+// Submit order
+document.getElementById("submitName").onclick = async function() {
+  const customerName = document.getElementById("customerName").value.trim();
+  if (!customerName){
+    alert("Please enter your name");
+    return;
+  }
+
+  const images = document.querySelectorAll("#previewContainer img");
+  if (images.length === 0){
+    alert("No photos to upload");
+    return;
+  }
+
+  previewContainer.innerHTML = "<h3>Upload in progress...</h3>";
+
+  // Convert images to base64 array
+  const base64Array = [];
+  images.forEach(img => {
+    base64Array.push(img.src);
+  });
+
+  try {
+    const response = await fetch("https://script.google.com/macros/s/AKfycbyRX1YdjnGHm94M2LCFg8Wq4XCjPLguCZxTucwlH5J05tfGQwUnqi2WoMmo0XKmnjt3/exec?name=" + encodeURIComponent(customerName), {
+  method: "POST",
+  body: JSON.stringify(base64Array),
+  mode: "no-cors"
+});
+
+    previewContainer.innerHTML = "<h3>Upload complete! ✅</h3>";
+
+  } catch(err){
+    previewContainer.innerHTML = "<h3>Upload failed: " + err + "</h3>";
+  }
+
+  setTimeout(() => {
+    document.getElementById("nameScreen").style.display = "none";
+    document.getElementById("customerName").value = "";
+    document.getElementById("submitPhotos").style.display = "none";
+    previewContainer.innerHTML = "";
+  }, 3000);
+};
+</script>
+
+</body>
+</html>
