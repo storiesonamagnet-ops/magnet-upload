@@ -133,65 +133,65 @@ photoInput.addEventListener("change", function(){
   const readerFull = new FileReader();
 
   readerFull.onload = function(eFull){
-    cropImage.src = eFull.target.result;
-    currentImageElement = img;
+    cropImage.onload = null; // reset any previous handler
 
-    // IMPORTANT: wait for image to load
-    cropImage.onload = function () {
+cropImage.src = eFull.target.result;
+currentImageElement = img;
 
-      if (cropper) {
-        cropper.destroy();
-      }
+// ✅ Force proper load handling (fixes mobile)
+setTimeout(() => {
 
-      cropper = new Cropper(cropImage, {
-  aspectRatio: 1,
-  viewMode: 1,
-  dragMode: 'move',
-  autoCropArea: 1,
-
-  cropBoxMovable: false,
-  cropBoxResizable: false,
-
-  movable: true,
-  zoomable: true,
-  background: false,
-  guides: false,
-  highlight: false,
-  center: true,
-  modal: true,
-
-  zoomOnTouch: true,
-  zoomOnWheel: true,
-  wheelZoomRatio: 0.08, // smooth zoom speed
-
-  ready() {
-    const containerData = cropper.getContainerData();
-    const imageData = cropper.getImageData();
-
-    // Fit image fully inside crop square
-    const scaleX = containerData.width / imageData.naturalWidth;
-    const scaleY = containerData.height / imageData.naturalHeight;
-    const initialScale = Math.min(scaleX, scaleY);
-    cropper.zoomTo(initialScale);
-
-    // Save starting scale for zoom limits
-    cropper.startingScale = initialScale;
-    cropper.maxZoom = initialScale * 1.25; // allow max 25% zoom in
-  },
-
-  zoom(event) {
-    const imageData = cropper.getImageData();
-    const currentWidth = imageData.width;
-    const naturalWidth = imageData.naturalWidth;
-    const zoomRatio = currentWidth / naturalWidth;
-
-    // Limit zoom in to max 25%
-    if (zoomRatio > cropper.maxZoom) {
-      cropper.zoomTo(cropper.maxZoom);
-      event.preventDefault();
-    }
+  if (cropper) {
+    cropper.destroy();
   }
-});
+
+  cropper = new Cropper(cropImage, {
+    aspectRatio: 1,
+    viewMode: 1,
+    dragMode: 'move',
+    autoCropArea: 1,
+
+    cropBoxMovable: false,
+    cropBoxResizable: false,
+
+    movable: true,
+    zoomable: true,
+    background: false,
+    guides: false,
+    highlight: false,
+    center: true,
+    modal: true,
+
+    zoomOnTouch: true,
+    zoomOnWheel: true,
+    wheelZoomRatio: 0.08,
+
+    ready() {
+      const containerData = cropper.getContainerData();
+      const imageData = cropper.getImageData();
+
+      const scaleX = containerData.width / imageData.naturalWidth;
+      const scaleY = containerData.height / imageData.naturalHeight;
+      const initialScale = Math.min(scaleX, scaleY);
+
+      cropper.zoomTo(initialScale);
+
+      cropper.startingScale = initialScale;
+      cropper.maxZoom = initialScale * 1.25;
+    },
+
+    zoom(event) {
+      const imageData = cropper.getImageData();
+      const zoomRatio = imageData.width / imageData.naturalWidth;
+
+      if (zoomRatio > cropper.maxZoom) {
+        cropper.zoomTo(cropper.maxZoom);
+        event.preventDefault();
+      }
+    }
+  });
+
+}, 50); // small delay fixes mobile rendering
 
     };
   };
