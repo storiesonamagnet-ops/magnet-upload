@@ -107,7 +107,9 @@ const previewContainer = document.getElementById("previewContainer");
 // Handle photo selection
 photoInput.addEventListener("change", function(){
   document.getElementById("submitPhotos").style.display = "inline-block";
-  previewContainer.innerHTML = "";
+  while (previewContainer.firstChild) {
+  previewContainer.removeChild(previewContainer.firstChild);
+}
   const files = photoInput.files;
 
   for (let i = 0; i < files.length; i++) {
