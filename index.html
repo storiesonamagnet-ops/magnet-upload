@@ -110,7 +110,8 @@ photoInput.addEventListener("change", function(){
   previewContainer.innerHTML = "";
   const files = photoInput.files;
 
-  for(let i = 0; i < files.length; i++){
+  for (let i = 0; i < files.length; i++) {
+  const file = files[i]; // ✅ LOCK the file here
     const reader = new FileReader();
     reader.onload = function(e){
       const wrapper = document.createElement("div");
@@ -129,7 +130,6 @@ photoInput.addEventListener("change", function(){
 
   cropModal.style.display = "block";
 
-  const file = files[i];
   const readerFull = new FileReader();
 
   readerFull.onload = function(eFull){
