@@ -111,88 +111,102 @@ photoInput.addEventListener("change", function(){
   while (previewContainer.firstChild) {
   previewContainer.removeChild(previewContainer.firstChild);
 }
-  const files = photoInput.files;
+  const files = Array.from(photoInput.files);
 
-  for (let i = 0; i < files.length; i++) {
-  const file = files[i]; // ✅ LOCK the file here
-    const reader = new FileReader();
-    reader.onload = function(e){
-      const wrapper = document.createElement("div");
-      wrapper.style.marginTop = "20px";
+files.forEach((file) => {
 
-      const img = document.createElement("img");
-      img.src = e.target.result;
+  const reader = new FileReader();
 
-      const editBtn = document.createElement("button");
-      editBtn.innerText = "Edit";
-      editBtn.style.marginLeft = "10px";
+  reader.onload = function(e){
+    const wrapper = document.createElement("div");
+    wrapper.style.marginTop = "20px";
 
-      editBtn.onclick = function(){
-  const cropModal = document.getElementById("cropModal");
-  const cropImage = document.getElementById("cropImage");
+    const img = document.createElement("img");
+    img.src = e.target.result;
 
-  cropModal.style.display = "block";
+    const editBtn = document.createElement("button");
+    editBtn.innerText = "Edit";
+    editBtn.style.marginLeft = "10px";
 
-  const readerFull = new FileReader();
+    editBtn.onclick = function(){
+      const cropModal = document.getElementById("cropModal");
+      const cropImage = document.getElementById("cropImage");
 
-  readerFull.onload = function(eFull){
-    cropImage.onload = null; // reset any previous handler
+      cropModal.style.display = "block";
 
-cropImage.src = eFull.target.result;
-currentImageElement = img;
+      const readerFull = new FileReader();
 
-// ✅ Force proper load handling (fixes mobile)
-setTimeout(() => {
+      readerFull.onload = function(eFull){
 
-  if (cropper) {
-    cropper.destroy();
-  }
+        cropImage.onload = null;
+        cropImage.src = eFull.target.result;
+        currentImageElement = img;
 
-  cropper = new Cropper(cropImage, {
-    aspectRatio: 1,
-    viewMode: 1,
-    dragMode: 'move',
-    autoCropArea: 1,
+        setTimeout(() => {
 
-    cropBoxMovable: false,
-    cropBoxResizable: false,
+          if (cropper) {
+            cropper.destroy();
+          }
 
-    movable: true,
-    zoomable: true,
-    background: false,
-    guides: false,
-    highlight: false,
-    center: true,
-    modal: true,
+          cropper = new Cropper(cropImage, {
+            aspectRatio: 1,
+            viewMode: 1,
+            dragMode: 'move',
+            autoCropArea: 1,
 
-    zoomOnTouch: true,
-    zoomOnWheel: true,
-    wheelZoomRatio: 0.08,
+            cropBoxMovable: false,
+            cropBoxResizable: false,
 
-    ready() {
-      const containerData = cropper.getContainerData();
-      const imageData = cropper.getImageData();
+            movable: true,
+            zoomable: true,
+            background: false,
+            guides: false,
+            highlight: false,
+            center: true,
+            modal: true,
 
-      const scaleX = containerData.width / imageData.naturalWidth;
-      const scaleY = containerData.height / imageData.naturalHeight;
-      const initialScale = Math.min(scaleX, scaleY);
+            zoomOnTouch: true,
+            zoomOnWheel: true,
+            wheelZoomRatio: 0.08,
 
-      cropper.zoomTo(initialScale);
+            ready() {
+              const containerData = cropper.getContainerData();
+              const imageData = cropper.getImageData();
 
-      cropper.startingScale = initialScale;
-      cropper.maxZoom = initialScale * 1.25;
-    },
+              const scaleX = containerData.width / imageData.naturalWidth;
+              const scaleY = containerData.height / imageData.naturalHeight;
+              const initialScale = Math.min(scaleX, scaleY);
 
-    zoom(event) {
-      const imageData = cropper.getImageData();
-      const zoomRatio = imageData.width / imageData.naturalWidth;
+              cropper.zoomTo(initialScale);
 
-      if (zoomRatio > cropper.maxZoom) {
-        cropper.zoomTo(cropper.maxZoom);
-        event.preventDefault();
-      }
-    }
-  });
+              cropper.startingScale = initialScale;
+              cropper.maxZoom = initialScale * 1.25;
+            },
+
+            zoom(event) {
+              const imageData = cropper.getImageData();
+              const zoomRatio = imageData.width / imageData.naturalWidth;
+
+              if (zoomRatio > cropper.maxZoom) {
+                cropper.zoomTo(cropper.maxZoom);
+                event.preventDefault();
+              }
+            }
+          });
+
+        }, 50);
+      };
+
+      readerFull.readAsDataURL(file);
+    };
+
+    wrapper.appendChild(img);
+    wrapper.appendChild(editBtn);
+    previewContainer.appendChild(wrapper);
+  };
+
+  reader.readAsDataURL(file);
+});
 
 }, 50); // small delay fixes mobile rendering
 
