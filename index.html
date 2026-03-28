@@ -70,7 +70,9 @@ Neon Moon Market • Feb 28
 
 <p>Upload your photos for your custom magnets.</p>
 
-<button id="selectPhotosBtn">Select Photos</button>
+<label for="photoInput" style="display:inline-block; background:#000; color:white; padding:15px 25px; font-size:18px; border-radius:8px; cursor:pointer;">
+  Select Photos
+</label>
 <input type="file" id="photoInput" multiple accept="image/*" style="display:none">
 
 <div id="previewContainer"></div>
@@ -276,10 +278,7 @@ document.getElementById("submitName").onclick = async function() {
     previewContainer.innerHTML = "";
   }, 3000);
 };
-document.getElementById("selectPhotosBtn").addEventListener("click", function(e) {
-  e.preventDefault();
-  document.getElementById("photoInput").click();
-});
+
 </script>
 
 </body>
