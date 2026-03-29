@@ -189,63 +189,69 @@ function handleFiles(event) {
       editBtn.innerText = "Edit";
       editBtn.style.marginLeft = "10px";
 
-      editBtn.onclick = function(){
-        const cropModal = document.getElementById("cropModal");
-        const cropImage = document.getElementById("cropImage");
+      editBtn.onclick = function() {
+  const cropModal = document.getElementById("cropModal");
+  const cropImage = document.getElementById("cropImage");
 
-        cropModal.style.display = "block";
+  cropModal.style.display = "block";
 
-        const readerFull = new FileReader();
+  const readerFull = new FileReader();
 
-        readerFull.onload = function(eFull){
-          currentImageElement = img; // set current image first
-          cropImage.src = eFull.target.result; // set source
+  readerFull.onload = function(eFull) {
+    cropImage.onload = function() {
+      // Destroy previous cropper if it exists
+      if (cropper) {
+        cropper.destroy();
+      }
 
-          cropImage.onload = function() { // initialize cropper after image loads
-            if (cropper) cropper.destroy();
+      // Initialize cropper AFTER image has fully loaded
+      cropper = new Cropper(cropImage, {
+        aspectRatio: 1,
+        viewMode: 1,
+        dragMode: 'move',
+        autoCropArea: 1,
 
-            cropper = new Cropper(cropImage, {
-              aspectRatio: 1,
-              viewMode: 1,
-              dragMode: 'move',
-              autoCropArea: 1,
+        cropBoxMovable: false,
+        cropBoxResizable: false,
 
-              cropBoxMovable: false,
-              cropBoxResizable: false,
+        movable: true,
+        zoomable: true,
+        background: false,
+        guides: false,
+        highlight: false,
+        center: true,
+        modal: true,
 
-              movable: true,
-              zoomable: true,
-              background: false,
-              guides: false,
-              highlight: false,
-              center: true,
-              modal: true,
+        zoomOnTouch: true,
+        zoomOnWheel: true,
+        wheelZoomRatio: 0.08,
 
-              zoomOnTouch: true,
-              zoomOnWheel: true,
-              wheelZoomRatio: 0.08,
+        ready() {
+          cropper.fit(); // Fit the full image in the container
+          const imageData = cropper.getImageData();
+          cropper.startingScale = imageData.width / imageData.naturalWidth;
+          cropper.maxZoom = cropper.startingScale * 1.25;
+        },
 
-              ready() {
-    cropper.fit(); // fit the entire image in the container
-    cropper.startingScale = cropper.getImageData().width / cropper.getImageData().naturalWidth;
-    cropper.maxZoom = cropper.startingScale * 1.25; // keep zoom limit
-},
+        zoom(event) {
+          const imageData = cropper.getImageData();
+          const zoomRatio = imageData.width / imageData.naturalWidth;
 
-              zoom(event) {
-                const imageData = cropper.getImageData();
-                const zoomRatio = imageData.width / imageData.naturalWidth;
+          if (zoomRatio > cropper.maxZoom) {
+            cropper.zoomTo(cropper.maxZoom);
+            event.preventDefault();
+          }
+        }
+      });
+    };
 
-                if (zoomRatio > cropper.maxZoom) {
-                  cropper.zoomTo(cropper.maxZoom);
-                  event.preventDefault();
-                }
-              }
-            });
-          };
-        };
+    // Set the src AFTER defining onload
+    cropImage.src = eFull.target.result;
+    currentImageElement = img;
+  };
 
-        readerFull.readAsDataURL(file);
-      };
+  readerFull.readAsDataURL(file);
+};
 
       wrapper.appendChild(img);
       wrapper.appendChild(editBtn);
