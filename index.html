@@ -199,50 +199,52 @@ function handleFiles(event) {
 
   readerFull.onload = function(eFull) {
     cropImage.onload = function() {
-      // Destroy previous cropper if it exists
-      if (cropper) {
-        cropper.destroy();
-      }
-
-      // Initialize cropper AFTER image has fully loaded
-      cropper = new Cropper(cropImage, {
-        aspectRatio: 1,
-        viewMode: 1,
-        dragMode: 'move',
-        autoCropArea: 1,
-
-        cropBoxMovable: false,
-        cropBoxResizable: false,
-
-        movable: true,
-        zoomable: true,
-        background: false,
-        guides: false,
-        highlight: false,
-        center: true,
-        modal: true,
-
-        zoomOnTouch: true,
-        zoomOnWheel: true,
-        wheelZoomRatio: 0.08,
-
-        ready() {
-          cropper.fit(); // Fit the full image in the container
-          const imageData = cropper.getImageData();
-          cropper.startingScale = imageData.width / imageData.naturalWidth;
-          cropper.maxZoom = cropper.startingScale * 1.25;
-        },
-
-        zoom(event) {
-          const imageData = cropper.getImageData();
-          const zoomRatio = imageData.width / imageData.naturalWidth;
-
-          if (zoomRatio > cropper.maxZoom) {
-            cropper.zoomTo(cropper.maxZoom);
-            event.preventDefault();
-          }
+      setTimeout(() => {
+        // Destroy previous cropper if it exists
+        if (cropper) {
+          cropper.destroy();
         }
-      });
+
+        // Initialize cropper AFTER image has fully loaded
+        cropper = new Cropper(cropImage, {
+          aspectRatio: 1,
+          viewMode: 1,
+          dragMode: 'move',
+          autoCropArea: 1,
+
+          cropBoxMovable: false,
+          cropBoxResizable: false,
+
+          movable: true,
+          zoomable: true,
+          background: false,
+          guides: false,
+          highlight: false,
+          center: true,
+          modal: true,
+
+          zoomOnTouch: true,
+          zoomOnWheel: true,
+          wheelZoomRatio: 0.08,
+
+          ready() {
+            cropper.fit(); // Fit the full image in the container
+            const imageData = cropper.getImageData();
+            cropper.startingScale = imageData.width / imageData.naturalWidth;
+            cropper.maxZoom = cropper.startingScale * 1.25;
+          },
+
+          zoom(event) {
+            const imageData = cropper.getImageData();
+            const zoomRatio = imageData.width / imageData.naturalWidth;
+
+            if (zoomRatio > cropper.maxZoom) {
+              cropper.zoomTo(cropper.maxZoom);
+              event.preventDefault();
+            }
+          }
+        });
+      }, 50); // tiny delay ensures mobile renders image fully
     };
 
     // Set the src AFTER defining onload
