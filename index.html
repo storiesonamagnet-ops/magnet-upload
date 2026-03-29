@@ -81,7 +81,7 @@ Neon Moon Market • Feb 28
 
 <div id="cropModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:999; padding:20px; overflow:auto;">
   <h2>Edit Photo</h2>
-  <img id="cropImage" style="max-width:90%; max-height:60vh;">
+  <img id="cropImage" style="max-width:90%; max-height:60vh; display:block; margin:auto;">
   <br><br>
   <button id="saveCrop">Save Crop</button>
 </div>
@@ -107,17 +107,14 @@ const previewContainer = document.getElementById("previewContainer");
 
 // Save crop with higher quality
 document.getElementById("saveCrop").onclick = function(){
-  // Use a larger canvas for sharper output
   const canvas = cropper.getCroppedCanvas({
-    width: 1200,    
+    width: 1200,
     height: 1200,
     imageSmoothingEnabled: true,
     imageSmoothingQuality: "high"
   });
 
-  // Export as JPEG with high quality
   const croppedImage = canvas.toDataURL("image/jpeg", 0.95);
-
   currentImageElement.src = croppedImage;
   document.getElementById("cropModal").style.display = "none";
   cropper.destroy();
@@ -146,21 +143,17 @@ document.getElementById("submitName").onclick = async function() {
 
   previewContainer.innerHTML = "<h3>Upload in progress...</h3>";
 
-  // Convert images to base64 array
   const base64Array = [];
-  images.forEach(img => {
-    base64Array.push(img.src);
-  });
+  images.forEach(img => base64Array.push(img.src));
 
   try {
-    const response = await fetch("https://script.google.com/macros/s/AKfycbyRX1YdjnGHm94M2LCFg8Wq4XCjPLguCZxTucwlH5J05tfGQwUnqi2WoMmo0XKmnjt3/exec?name=" + encodeURIComponent(customerName), {
-  method: "POST",
-  body: JSON.stringify(base64Array),
-  mode: "no-cors"
-});
+    await fetch("https://script.google.com/macros/s/AKfycbyRX1YdjnGHm94M2LCFg8Wq4XCjPLguCZxTucwlH5J05tfGQwUnqi2WoMmo0XKmnjt3/exec?name=" + encodeURIComponent(customerName), {
+      method: "POST",
+      body: JSON.stringify(base64Array),
+      mode: "no-cors"
+    });
 
     previewContainer.innerHTML = "<h3>Upload complete! ✅</h3>";
-
   } catch(err){
     previewContainer.innerHTML = "<h3>Upload failed: " + err + "</h3>";
   }
@@ -172,6 +165,7 @@ document.getElementById("submitName").onclick = async function() {
     previewContainer.innerHTML = "";
   }, 3000);
 };
+
 function handleFiles(event) {
   document.getElementById("submitPhotos").style.display = "inline-block";
 
@@ -182,7 +176,6 @@ function handleFiles(event) {
   const files = Array.from(event.target.files);
 
   files.forEach((file) => {
-
     const reader = new FileReader();
 
     reader.onload = function(e){
@@ -205,16 +198,11 @@ function handleFiles(event) {
         const readerFull = new FileReader();
 
         readerFull.onload = function(eFull){
+          currentImageElement = img; // set current image first
+          cropImage.src = eFull.target.result; // set source
 
-          cropImage.onload = null;
-          cropImage.src = eFull.target.result;
-          currentImageElement = img;
-
-          setTimeout(() => {
-
-            if (cropper) {
-              cropper.destroy();
-            }
+          cropImage.onload = function() { // initialize cropper after image loads
+            if (cropper) cropper.destroy();
 
             cropper = new Cropper(cropImage, {
               aspectRatio: 1,
@@ -246,7 +234,6 @@ function handleFiles(event) {
                 const initialScale = Math.min(scaleX, scaleY);
 
                 cropper.zoomTo(initialScale);
-
                 cropper.startingScale = initialScale;
                 cropper.maxZoom = initialScale * 1.25;
               },
@@ -261,8 +248,7 @@ function handleFiles(event) {
                 }
               }
             });
-
-          }, 50);
+          };
         };
 
         readerFull.readAsDataURL(file);
