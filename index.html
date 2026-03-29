@@ -81,7 +81,7 @@ Neon Moon Market • Feb 28
 
 <div id="cropModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:999; padding:20px; overflow:auto;">
   <h2>Edit Photo</h2>
-  <img id="cropImage" style="max-width:90%; max-height:60vh; display:block; margin:auto;">
+  <img id="cropImage" style="max-width:90%; max-height:80vh; display:block; margin:10vh auto;">
   <br><br>
   <button id="saveCrop">Save Crop</button>
 </div>
@@ -226,17 +226,10 @@ function handleFiles(event) {
               wheelZoomRatio: 0.08,
 
               ready() {
-                const containerData = cropper.getContainerData();
-                const imageData = cropper.getImageData();
-
-                const scaleX = containerData.width / imageData.naturalWidth;
-                const scaleY = containerData.height / imageData.naturalHeight;
-                const initialScale = Math.min(scaleX, scaleY);
-
-                cropper.zoomTo(initialScale);
-                cropper.startingScale = initialScale;
-                cropper.maxZoom = initialScale * 1.25;
-              },
+    cropper.fit(); // fit the entire image in the container
+    cropper.startingScale = cropper.getImageData().width / cropper.getImageData().naturalWidth;
+    cropper.maxZoom = cropper.startingScale * 1.25; // keep zoom limit
+},
 
               zoom(event) {
                 const imageData = cropper.getImageData();
