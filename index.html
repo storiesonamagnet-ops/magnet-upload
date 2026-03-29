@@ -200,6 +200,13 @@ function handleFiles(event) {
   readerFull.onload = function(eFull){
     currentImageElement = img;
 
+    // Remove any previous onload to avoid double initialization
+    cropImage.onload = null;
+
+    // Set the src first
+    cropImage.src = eFull.target.result;
+
+    // Only initialize cropper once the image has fully loaded
     cropImage.onload = function() {
       if (cropper) {
         cropper.destroy();
@@ -223,6 +230,7 @@ function handleFiles(event) {
         zoomOnWheel: true,
         wheelZoomRatio: 0.08,
         ready() {
+          // Fit the whole image in view
           const containerData = cropper.getContainerData();
           const imageData = cropper.getImageData();
           const scaleX = containerData.width / imageData.naturalWidth;
@@ -230,21 +238,10 @@ function handleFiles(event) {
           const initialScale = Math.min(scaleX, scaleY);
           cropper.zoomTo(initialScale);
           cropper.startingScale = initialScale;
-          cropper.maxZoom = initialScale * 1.25;
-        },
-        zoom(event) {
-          const imageData = cropper.getImageData();
-          const zoomRatio = imageData.width / imageData.naturalWidth;
-          if (zoomRatio > cropper.maxZoom) {
-            cropper.zoomTo(cropper.maxZoom);
-            event.preventDefault();
-          }
+          cropper.maxZoom = initialScale * 2; // allow more zoom if desired
         }
       });
     };
-
-    // Set the src AFTER onload is ready
-    cropImage.src = eFull.target.result;
   };
 
   readerFull.readAsDataURL(file);
