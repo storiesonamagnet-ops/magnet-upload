@@ -104,6 +104,9 @@ let currentImageElement;
 
 const photoInput = document.getElementById("photoInput");
 const previewContainer = document.getElementById("previewContainer");
+photoInput.addEventListener("click", function(event){
+    event.stopPropagation();
+});
 
 // Save crop with higher quality
 document.getElementById("saveCrop").onclick = function(){
