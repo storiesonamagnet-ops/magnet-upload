@@ -73,7 +73,7 @@ Neon Moon Market • Feb 28
 <label for="photoInput" style="display:inline-block; background:#000; color:white; padding:15px 25px; font-size:18px; border-radius:8px; cursor:pointer;">
   Select Photos
 </label>
-<input type="file" id="photoInput" accept="image/*" style="opacity:0; position:absolute; left:-9999px;">
+<input type="file" id="photoInput" accept="image/*" onchange="handleFiles(event)" style="opacity:0; position:absolute; left:-9999px;">
 <div id="previewContainer"></div>
 
 <br><br>
@@ -104,109 +104,6 @@ let currentImageElement;
 
 const photoInput = document.getElementById("photoInput");
 const previewContainer = document.getElementById("previewContainer");
-
-// Handle photo selection
-photoInput.addEventListener("change", function(){
-  document.getElementById("submitPhotos").style.display = "inline-block";
-  while (previewContainer.firstChild) {
-  previewContainer.removeChild(previewContainer.firstChild);
-}
-  const files = Array.from(photoInput.files);
-
-files.forEach((file) => {
-
-  const reader = new FileReader();
-
-  reader.onload = function(e){
-    const wrapper = document.createElement("div");
-    wrapper.style.marginTop = "20px";
-
-    const img = document.createElement("img");
-    img.src = e.target.result;
-
-    const editBtn = document.createElement("button");
-    editBtn.innerText = "Edit";
-    editBtn.style.marginLeft = "10px";
-
-    editBtn.onclick = function(){
-      const cropModal = document.getElementById("cropModal");
-      const cropImage = document.getElementById("cropImage");
-
-      cropModal.style.display = "block";
-
-      const readerFull = new FileReader();
-
-      readerFull.onload = function(eFull){
-
-        cropImage.onload = null;
-        cropImage.src = eFull.target.result;
-        currentImageElement = img;
-
-        setTimeout(() => {
-
-          if (cropper) {
-            cropper.destroy();
-          }
-
-          cropper = new Cropper(cropImage, {
-            aspectRatio: 1,
-            viewMode: 1,
-            dragMode: 'move',
-            autoCropArea: 1,
-
-            cropBoxMovable: false,
-            cropBoxResizable: false,
-
-            movable: true,
-            zoomable: true,
-            background: false,
-            guides: false,
-            highlight: false,
-            center: true,
-            modal: true,
-
-            zoomOnTouch: true,
-            zoomOnWheel: true,
-            wheelZoomRatio: 0.08,
-
-            ready() {
-              const containerData = cropper.getContainerData();
-              const imageData = cropper.getImageData();
-
-              const scaleX = containerData.width / imageData.naturalWidth;
-              const scaleY = containerData.height / imageData.naturalHeight;
-              const initialScale = Math.min(scaleX, scaleY);
-
-              cropper.zoomTo(initialScale);
-
-              cropper.startingScale = initialScale;
-              cropper.maxZoom = initialScale * 1.25;
-            },
-
-            zoom(event) {
-              const imageData = cropper.getImageData();
-              const zoomRatio = imageData.width / imageData.naturalWidth;
-
-              if (zoomRatio > cropper.maxZoom) {
-                cropper.zoomTo(cropper.maxZoom);
-                event.preventDefault();
-              }
-            }
-          });
-
-        }, 50);
-      };
-
-      readerFull.readAsDataURL(file);
-    };
-
-    wrapper.appendChild(img);
-    wrapper.appendChild(editBtn);
-    previewContainer.appendChild(wrapper);
-  };
-
-  reader.readAsDataURL(file);
-});
 
 }, 50); // small delay fixes mobile rendering
 
@@ -291,7 +188,110 @@ document.getElementById("submitName").onclick = async function() {
     previewContainer.innerHTML = "";
   }, 3000);
 };
+function handleFiles(event) {
+  document.getElementById("submitPhotos").style.display = "inline-block";
 
+  while (previewContainer.firstChild) {
+    previewContainer.removeChild(previewContainer.firstChild);
+  }
+
+  const files = Array.from(event.target.files);
+
+  files.forEach((file) => {
+
+    const reader = new FileReader();
+
+    reader.onload = function(e){
+      const wrapper = document.createElement("div");
+      wrapper.style.marginTop = "20px";
+
+      const img = document.createElement("img");
+      img.src = e.target.result;
+
+      const editBtn = document.createElement("button");
+      editBtn.innerText = "Edit";
+      editBtn.style.marginLeft = "10px";
+
+      editBtn.onclick = function(){
+        const cropModal = document.getElementById("cropModal");
+        const cropImage = document.getElementById("cropImage");
+
+        cropModal.style.display = "block";
+
+        const readerFull = new FileReader();
+
+        readerFull.onload = function(eFull){
+
+          cropImage.onload = null;
+          cropImage.src = eFull.target.result;
+          currentImageElement = img;
+
+          setTimeout(() => {
+
+            if (cropper) {
+              cropper.destroy();
+            }
+
+            cropper = new Cropper(cropImage, {
+              aspectRatio: 1,
+              viewMode: 1,
+              dragMode: 'move',
+              autoCropArea: 1,
+
+              cropBoxMovable: false,
+              cropBoxResizable: false,
+
+              movable: true,
+              zoomable: true,
+              background: false,
+              guides: false,
+              highlight: false,
+              center: true,
+              modal: true,
+
+              zoomOnTouch: true,
+              zoomOnWheel: true,
+              wheelZoomRatio: 0.08,
+
+              ready() {
+                const containerData = cropper.getContainerData();
+                const imageData = cropper.getImageData();
+
+                const scaleX = containerData.width / imageData.naturalWidth;
+                const scaleY = containerData.height / imageData.naturalHeight;
+                const initialScale = Math.min(scaleX, scaleY);
+
+                cropper.zoomTo(initialScale);
+
+                cropper.startingScale = initialScale;
+                cropper.maxZoom = initialScale * 1.25;
+              },
+
+              zoom(event) {
+                const imageData = cropper.getImageData();
+                const zoomRatio = imageData.width / imageData.naturalWidth;
+
+                if (zoomRatio > cropper.maxZoom) {
+                  cropper.zoomTo(cropper.maxZoom);
+                  event.preventDefault();
+                }
+              }
+            });
+
+          }, 50);
+        };
+
+        readerFull.readAsDataURL(file);
+      };
+
+      wrapper.appendChild(img);
+      wrapper.appendChild(editBtn);
+      previewContainer.appendChild(wrapper);
+    };
+
+    reader.readAsDataURL(file);
+  });
+}
 </script>
 
 </body>
