@@ -3,12 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<!-- 🔥 FORCE NO CACHE -->
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-<meta http-equiv="Pragma" content="no-cache" />
-<meta http-equiv="Expires" content="0" />
-
 <title>Stories on a Magnet Upload</title>
 
 <!-- Cropper.js -->
@@ -76,13 +70,11 @@ Neon Moon Market • Feb 28
 
 <p>Upload your photos for your custom magnets.</p>
 
-<div style="margin-top:20px; display:inline-block; position:relative;">
-  <input type="file" id="photoInput" accept="image/*" multiple
-         style="width:1px; height:1px; opacity:0; position:absolute; z-index:2; cursor:pointer;">
-  <button id="selectPhotosBtn" style="padding:15px 25px; font-size:18px; border-radius:8px; background:#000; color:white; border:none; cursor:pointer; z-index:1;">
-    Select Photos
-  </button>
-</div>
+<!-- FIXED label + input -->
+<label for="photoInput" style="display:inline-block; background:#000; color:white; padding:15px 25px; font-size:18px; border-radius:8px; cursor:pointer;">
+  Select Photos
+</label>
+<input type="file" id="photoInput" accept="image/*" onchange="handleFiles(event)" style="display:none;">
 <div id="previewContainer"></div>
 
 <br><br>
@@ -108,22 +100,11 @@ Neon Moon Market • Feb 28
 </div>
 
 <script>
-window.addEventListener("beforeunload", function (e) {
-  e.preventDefault();
-  e.returnValue = "";
-});
-
 let cropper;
 let currentImageElement;
 
+const photoInput = document.getElementById("photoInput");
 const previewContainer = document.getElementById("previewContainer");
-window.addEventListener("load", function() {
-  const photoInput = document.getElementById("photoInput");
-
-  photoInput.addEventListener("change", function(event) {
-    handleFiles(event);
-  });
-});
 
 // Save crop with higher quality
 document.getElementById("saveCrop").onclick = function(){
@@ -188,16 +169,11 @@ document.getElementById("submitName").onclick = async function() {
 
 // Handle file selection
 function handleFiles(event) {
-  const files = Array.from(event.target.files);
-
-  if (!files.length) return;
-
   document.getElementById("submitPhotos").style.display = "inline-block";
 
-  previewContainer.innerHTML = "";
-
-  // 🔥 THIS LINE FIXES MOBILE BUG
-  event.target.value = "";
+  while (previewContainer.firstChild) {
+    previewContainer.removeChild(previewContainer.firstChild);
+  }
 
   const files = Array.from(event.target.files);
 
@@ -225,56 +201,59 @@ function handleFiles(event) {
         // Use a fresh FileReader for full-quality image
         const readerFull = new FileReader();
         readerFull.onload = function(eFull){
-  currentImageElement = img;
+          currentImageElement = img;
 
-  // Set the image src first
-  cropImage.src = eFull.target.result;
+          // Set the image src first
+          cropImage.src = eFull.target.result;
 
-  // Wait for image to load fully
-  cropImage.onload = function() {
-    // Append to DOM and wait for next paint cycle
-    requestAnimationFrame(() => {
-      if (cropper) cropper.destroy();
+          // Wait for image to load fully
+          cropImage.onload = function() {
+            // Delay initialization to avoid mobile race issues
+            setTimeout(() => {
+              if (cropper) cropper.destroy();
 
-      cropper = new Cropper(cropImage, {
-        aspectRatio: 1,
-        viewMode: 1,
-        dragMode: 'move',
-        autoCropArea: 1,
-        cropBoxMovable: false,
-        cropBoxResizable: false,
-        movable: true,
-        zoomable: true,
-        background: false,
-        guides: false,
-        highlight: false,
-        center: true,
-        modal: true,
-        zoomOnTouch: true,
-        zoomOnWheel: true,
-        wheelZoomRatio: 0.08,
-        ready() {
-          const containerData = cropper.getContainerData();
-          const imageData = cropper.getImageData();
-          const scaleX = containerData.width / imageData.naturalWidth;
-          const scaleY = containerData.height / imageData.naturalHeight;
-          const initialScale = Math.min(scaleX, scaleY);
-          cropper.zoomTo(initialScale);
-          cropper.startingScale = initialScale;
-          cropper.maxZoom = initialScale * 1.25;
-        },
-        zoom(event) {
-          const imageData = cropper.getImageData();
-          const zoomRatio = imageData.width / imageData.naturalWidth;
-          if (zoomRatio > cropper.maxZoom) {
-            cropper.zoomTo(cropper.maxZoom);
-            event.preventDefault();
-          }
-        }
-      });
-    });
-  };
-};
+              cropper = new Cropper(cropImage, {
+                aspectRatio: 1,
+                viewMode: 1,
+                dragMode: 'move',
+                autoCropArea: 1,
+                cropBoxMovable: false,
+                cropBoxResizable: false,
+                movable: true,
+                zoomable: true,
+                background: false,
+                guides: false,
+                highlight: false,
+                center: true,
+                modal: true,
+                zoomOnTouch: true,
+                zoomOnWheel: true,
+                wheelZoomRatio: 0.08,
+                ready() {
+                  const containerData = cropper.getContainerData();
+                  const imageData = cropper.getImageData();
+                  const scaleX = containerData.width / imageData.naturalWidth;
+                  const scaleY = containerData.height / imageData.naturalHeight;
+                  const initialScale = Math.min(scaleX, scaleY);
+                  cropper.zoomTo(initialScale);
+                  cropper.startingScale = initialScale;
+                  cropper.maxZoom = initialScale * 1.25;
+                },
+                zoom(event) {
+                  const imageData = cropper.getImageData();
+                  const zoomRatio = imageData.width / imageData.naturalWidth;
+                  if (zoomRatio > cropper.maxZoom) {
+                    cropper.zoomTo(cropper.maxZoom);
+                    event.preventDefault();
+                  }
+                }
+              });
+            }, 100); // 100ms delay
+          };
+        };
+
+        readerFull.readAsDataURL(file);
+      };
 
       wrapper.appendChild(img);
       wrapper.appendChild(editBtn);
@@ -284,9 +263,6 @@ function handleFiles(event) {
     reader.readAsDataURL(file);
   });
 }
-document.getElementById("selectPhotosBtn").addEventListener("click", function() {
-  document.getElementById("photoInput").click();
-});
 </script>
 
 </body>
