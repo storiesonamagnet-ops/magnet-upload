@@ -5,77 +5,29 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Stories on a Magnet Upload</title>
 
-<!-- Cropper.js -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
 
 <style>
-body{
-  font-family: Arial, sans-serif;
-  text-align:center;
-  background:#f4f4f4;
-  margin:0;
-  padding:40px;
-}
-
-.container{
-  background:white;
-  max-width:500px;
-  margin:auto;
-  padding:30px;
-  border-radius:10px;
-  box-shadow:0 5px 15px rgba(0,0,0,0.1);
-}
-
-h1{
-  margin-bottom:10px;
-}
-
-.event{
-  color:#777;
-  margin-bottom:25px;
-}
-
-button{
-  background:#000;
-  color:white;
-  border:none;
-  padding:15px 25px;
-  font-size:18px;
-  border-radius:8px;
-  cursor:pointer;
-}
-
-button:hover{
-  opacity:.85;
-}
-
-#previewContainer img{
-  margin-top:10px;
-  border-radius:8px;
-  width:150px;
-}
+body{ font-family: Arial, sans-serif; text-align:center; background:#f4f4f4; margin:0; padding:40px;}
+.container{ background:white; max-width:500px; margin:auto; padding:30px; border-radius:10px; box-shadow:0 5px 15px rgba(0,0,0,0.1);}
+h1{ margin-bottom:10px;}
+.event{ color:#777; margin-bottom:25px;}
+button{ background:#000; color:white; border:none; padding:15px 25px; font-size:18px; border-radius:8px; cursor:pointer;}
+button:hover{ opacity:.85;}
+#previewContainer img{ margin-top:10px; border-radius:8px; width:150px;}
 </style>
 </head>
-
 <body>
 
 <div class="container">
-
 <h1>Stories on a Magnet</h1>
-
-<div class="event" id="eventName">
-Neon Moon Market • Feb 28
-</div>
-
+<div class="event" id="eventName">Neon Moon Market • Feb 28</div>
 <p>Upload your photos for your custom magnets.</p>
 
-<label for="photoInput" id="selectPhotosBtn" style="display:inline-block; background:#000; color:white; padding:15px 25px; font-size:18px; border-radius:8px; cursor:pointer;">
-  Select Photos
-</label>
+<label for="photoInput" id="selectPhotosBtn" style="display:inline-block; background:#000; color:white; padding:15px 25px; font-size:18px; border-radius:8px; cursor:pointer;">Select Photos</label>
 <input type="file" id="photoInput" accept="image/*" style="opacity:0; position:absolute; left:-9999px;" multiple>
 <div id="previewContainer"></div>
-
 <br><br>
 <button id="submitPhotos" style="display:none;">Submit Photos</button>
 
@@ -88,12 +40,7 @@ Neon Moon Market • Feb 28
 
 <div id="nameScreen" style="display:none; margin-top:30px;">
   <h2>Enter Your Name</h2>
-  <input 
-    id="customerName" 
-    type="text" 
-    placeholder="Your Name"
-    style="padding:12px; font-size:18px; width:80%; border-radius:6px; border:1px solid #ccc;"
-  >
+  <input id="customerName" type="text" placeholder="Your Name" style="padding:12px; font-size:18px; width:80%; border-radius:6px; border:1px solid #ccc;">
   <br><br>
   <button id="submitName">Submit Order</button>
 </div>
@@ -104,31 +51,23 @@ let currentImageElement;
 const photoInput = document.getElementById("photoInput");
 const previewContainer = document.getElementById("previewContainer");
 
-// Trigger file input when label is clicked
+// Trigger input
 document.getElementById("selectPhotosBtn").addEventListener("click", function() {
+  // Reset input value so same files can be selected multiple times
+  photoInput.value = "";
   photoInput.click();
 });
 
 // Save crop
 document.getElementById("saveCrop").onclick = function(){
-  if (!cropper) return;
-  const canvas = cropper.getCroppedCanvas({
-    width: 1200,
-    height: 1200,
-    imageSmoothingEnabled: true,
-    imageSmoothingQuality: "high"
-  });
-  const croppedImage = canvas.toDataURL("image/jpeg", 0.95);
+  if(!cropper) return;
+  const canvas = cropper.getCroppedCanvas({ width:1200, height:1200, imageSmoothingEnabled:true, imageSmoothingQuality:"high" });
+  const croppedImage = canvas.toDataURL("image/jpeg",0.95);
   currentImageElement.src = croppedImage;
-  document.getElementById("cropModal").style.display = "none";
+  document.getElementById("cropModal").style.display="none";
   cropper.destroy();
-  cropper = null;
-
-  // Reset crop image src for next round
-  document.getElementById("cropImage").src = "";
-
-  // Reset file input so same files can be selected again
-  photoInput.value = "";
+  cropper=null;
+  document.getElementById("cropImage").src="";
 };
 
 // Show name screen
@@ -140,123 +79,96 @@ document.getElementById("submitPhotos").onclick = function(){
 // Submit order
 document.getElementById("submitName").onclick = async function() {
   const customerName = document.getElementById("customerName").value.trim();
-  if (!customerName){
-    alert("Please enter your name");
-    return;
-  }
-
+  if(!customerName){ alert("Please enter your name"); return;}
   const images = document.querySelectorAll("#previewContainer img");
-  if (images.length === 0){
-    alert("No photos to upload");
-    return;
-  }
-
-  previewContainer.innerHTML = "<h3>Upload in progress...</h3>";
-
+  if(images.length===0){ alert("No photos to upload"); return;}
+  previewContainer.innerHTML="<h3>Upload in progress...</h3>";
   const base64Array = [];
-  images.forEach(img => base64Array.push(img.src));
-
-  try {
-    await fetch("https://script.google.com/macros/s/AKfycbyRX1YdjnGHm94M2LCFg8Wq4XCjPLguCZxTucwlH5J05tfGQwUnqi2WoMmo0XKmnjt3/exec?name=" + encodeURIComponent(customerName), {
-      method: "POST",
-      body: JSON.stringify(base64Array),
-      mode: "no-cors"
+  images.forEach(img=>base64Array.push(img.src));
+  try{
+    await fetch("https://script.google.com/macros/s/AKfycbyRX1YdjnGHm94M2LCFg8Wq4XCjPLguCZxTucwlH5J05tfGQwUnqi2WoMmo0XKmnjt3/exec?name="+encodeURIComponent(customerName),{
+      method:"POST",
+      body:JSON.stringify(base64Array),
+      mode:"no-cors"
     });
-
-    previewContainer.innerHTML = "<h3>Upload complete! ✅</h3>";
-  } catch(err){
-    previewContainer.innerHTML = "<h3>Upload failed: " + err + "</h3>";
+    previewContainer.innerHTML="<h3>Upload complete! ✅</h3>";
+  }catch(err){
+    previewContainer.innerHTML="<h3>Upload failed: "+err+"</h3>";
   }
-
-  setTimeout(() => {
-    document.getElementById("nameScreen").style.display = "none";
-    document.getElementById("customerName").value = "";
-    document.getElementById("submitPhotos").style.display = "none";
-    previewContainer.innerHTML = "";
-  }, 3000);
+  setTimeout(()=>{
+    document.getElementById("nameScreen").style.display="none";
+    document.getElementById("customerName").value="";
+    document.getElementById("submitPhotos").style.display="none";
+    previewContainer.innerHTML="";
+  },3000);
 };
 
 // Handle file selection
 photoInput.addEventListener("change", function(event){
-  document.getElementById("submitPhotos").style.display = "inline-block";
-
-  while (previewContainer.firstChild) {
-    previewContainer.removeChild(previewContainer.firstChild);
-  }
-
+  document.getElementById("submitPhotos").style.display="inline-block";
+  previewContainer.innerHTML="";
   const files = Array.from(event.target.files);
-
-  files.forEach((file) => {
+  files.forEach(file=>{
     const reader = new FileReader();
     reader.onload = function(e){
       const wrapper = document.createElement("div");
-      wrapper.style.marginTop = "20px";
-
+      wrapper.style.marginTop="20px";
       const img = document.createElement("img");
       img.src = e.target.result;
-
       const editBtn = document.createElement("button");
-      editBtn.innerText = "Edit";
-      editBtn.style.marginLeft = "10px";
+      editBtn.innerText="Edit";
+      editBtn.style.marginLeft="10px";
 
-      // Edit button
       editBtn.onclick = function(){
         const cropModal = document.getElementById("cropModal");
         const cropImage = document.getElementById("cropImage");
-
-        // Destroy previous cropper if exists
-        if (cropper) {
-          cropper.destroy();
-          cropper = null;
-        }
-
-        cropImage.src = "";
-        cropModal.style.display = "block";
+        cropModal.style.display="block";
         currentImageElement = img;
 
-        // New FileReader for full quality
+        // Destroy previous cropper if exists
+        if(cropper){ cropper.destroy(); cropper=null; }
+        cropImage.src="";
+
+        // Use fresh FileReader
         const readerFull = new FileReader();
-        readerFull.onload = function(eFull){
-          cropImage.src = eFull.target.result;
-          cropImage.onload = function(){
-            setTimeout(() => {
-              cropper = new Cropper(cropImage, {
-                aspectRatio: 1,
-                viewMode: 1,
-                dragMode: 'move',
-                autoCropArea: 1,
-                cropBoxMovable: false,
-                cropBoxResizable: false,
-                movable: true,
-                zoomable: true,
-                background: false,
-                guides: false,
-                highlight: false,
-                center: true,
-                modal: true,
-                zoomOnTouch: true,
-                zoomOnWheel: true,
-                wheelZoomRatio: 0.08,
-                ready() {
-                  const containerData = cropper.getContainerData();
-                  const imageData = cropper.getImageData();
-                  const scaleX = containerData.width / imageData.naturalWidth;
-                  const scaleY = containerData.height / imageData.naturalHeight;
-                  const initialScale = Math.min(scaleX, scaleY);
+        readerFull.onload=function(eFull){
+          cropImage.src=eFull.target.result;
+          cropImage.onload=function(){
+            setTimeout(()=>{
+              cropper = new Cropper(cropImage,{
+                aspectRatio:1,
+                viewMode:1,
+                dragMode:'move',
+                autoCropArea:1,
+                cropBoxMovable:false,
+                cropBoxResizable:false,
+                movable:true,
+                zoomable:true,
+                background:false,
+                guides:false,
+                highlight:false,
+                center:true,
+                modal:true,
+                zoomOnTouch:true,
+                zoomOnWheel:true,
+                wheelZoomRatio:0.08,
+                ready(){
+                  const containerData=cropper.getContainerData();
+                  const imageData=cropper.getImageData();
+                  const scaleX=containerData.width/imageData.naturalWidth;
+                  const scaleY=containerData.height/imageData.naturalHeight;
+                  const initialScale=Math.min(scaleX,scaleY);
                   cropper.zoomTo(initialScale);
-                  cropper.startingScale = initialScale;
-                  cropper.maxZoom = initialScale * 1.25;
+                  cropper.startingScale=initialScale;
+                  cropper.maxZoom=initialScale*1.25;
                 },
-                zoom(event) {
-                  const imageData = cropper.getImageData();
-                  const zoomRatio = imageData.width / imageData.naturalWidth;
-                  if (zoomRatio > cropper.maxZoom) {
-                    cropper.zoomTo(cropper.maxZoom);
-                    event.preventDefault();
-                  }
+                zoom(event){
+                  const imageData=cropper.getImageData();
+                  const zoomRatio=imageData.width/imageData.naturalWidth;
+                  if(zoomRatio>cropper.maxZoom){ cropper.zoomTo(cropper.maxZoom); event.preventDefault(); }
                 }
               });
-            }, 100);
+            },150); // Slightly longer delay for mobile rendering
           };
         };
         readerFull.readAsDataURL(file);
@@ -270,6 +182,5 @@ photoInput.addEventListener("change", function(event){
   });
 });
 </script>
-
 </body>
 </html>
