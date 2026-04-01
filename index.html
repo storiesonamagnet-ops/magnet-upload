@@ -99,6 +99,11 @@ Neon Moon Market • Feb 28
 </div>
 
 <script>
+window.addEventListener("beforeunload", function (e) {
+  e.preventDefault();
+  e.returnValue = "";
+});
+
 let cropper;
 let currentImageElement;
 
