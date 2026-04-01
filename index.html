@@ -70,11 +70,10 @@ Neon Moon Market • Feb 28
 
 <p>Upload your photos for your custom magnets.</p>
 
-<!-- FIXED label + input -->
-<label for="photoInput" style="display:inline-block; background:#000; color:white; padding:15px 25px; font-size:18px; border-radius:8px; cursor:pointer;">
+<label for="photoInput" id="selectPhotosBtn" style="display:inline-block; background:#000; color:white; padding:15px 25px; font-size:18px; border-radius:8px; cursor:pointer;">
   Select Photos
 </label>
-<input type="file" id="photoInput" accept="image/*" onchange="handleFiles(event)" style="display:none;">
+<input type="file" id="photoInput" accept="image/*" style="opacity:0; position:absolute; left:-9999px;" multiple>
 <div id="previewContainer"></div>
 
 <br><br>
@@ -102,11 +101,15 @@ Neon Moon Market • Feb 28
 <script>
 let cropper;
 let currentImageElement;
-
 const photoInput = document.getElementById("photoInput");
 const previewContainer = document.getElementById("previewContainer");
 
-// Save crop with higher quality
+// Trigger file input when label is clicked
+document.getElementById("selectPhotosBtn").addEventListener("click", function() {
+  photoInput.click();
+});
+
+// Save crop
 document.getElementById("saveCrop").onclick = function(){
   if (!cropper) return;
   const canvas = cropper.getCroppedCanvas({
@@ -120,6 +123,12 @@ document.getElementById("saveCrop").onclick = function(){
   document.getElementById("cropModal").style.display = "none";
   cropper.destroy();
   cropper = null;
+
+  // Reset crop image src for next round
+  document.getElementById("cropImage").src = "";
+
+  // Reset file input so same files can be selected again
+  photoInput.value = "";
 };
 
 // Show name screen
@@ -168,7 +177,7 @@ document.getElementById("submitName").onclick = async function() {
 };
 
 // Handle file selection
-function handleFiles(event) {
+photoInput.addEventListener("change", function(event){
   document.getElementById("submitPhotos").style.display = "inline-block";
 
   while (previewContainer.firstChild) {
@@ -179,7 +188,6 @@ function handleFiles(event) {
 
   files.forEach((file) => {
     const reader = new FileReader();
-
     reader.onload = function(e){
       const wrapper = document.createElement("div");
       wrapper.style.marginTop = "20px";
@@ -191,27 +199,27 @@ function handleFiles(event) {
       editBtn.innerText = "Edit";
       editBtn.style.marginLeft = "10px";
 
+      // Edit button
       editBtn.onclick = function(){
         const cropModal = document.getElementById("cropModal");
         const cropImage = document.getElementById("cropImage");
 
+        // Destroy previous cropper if exists
+        if (cropper) {
+          cropper.destroy();
+          cropper = null;
+        }
+
+        cropImage.src = "";
         cropModal.style.display = "block";
         currentImageElement = img;
 
-        // Use a fresh FileReader for full-quality image
+        // New FileReader for full quality
         const readerFull = new FileReader();
         readerFull.onload = function(eFull){
-          currentImageElement = img;
-
-          // Set the image src first
           cropImage.src = eFull.target.result;
-
-          // Wait for image to load fully
-          cropImage.onload = function() {
-            // Delay initialization to avoid mobile race issues
+          cropImage.onload = function(){
             setTimeout(() => {
-              if (cropper) cropper.destroy();
-
               cropper = new Cropper(cropImage, {
                 aspectRatio: 1,
                 viewMode: 1,
@@ -248,10 +256,9 @@ function handleFiles(event) {
                   }
                 }
               });
-            }, 100); // 100ms delay
+            }, 100);
           };
         };
-
         readerFull.readAsDataURL(file);
       };
 
@@ -259,10 +266,9 @@ function handleFiles(event) {
       wrapper.appendChild(editBtn);
       previewContainer.appendChild(wrapper);
     };
-
     reader.readAsDataURL(file);
   });
-}
+});
 </script>
 
 </body>
