@@ -176,11 +176,16 @@ document.getElementById("submitName").onclick = async function() {
 
 // Handle file selection
 function handleFiles(event) {
+  const files = Array.from(event.target.files);
+
+  if (!files.length) return;
+
   document.getElementById("submitPhotos").style.display = "inline-block";
 
-  while (previewContainer.firstChild) {
-    previewContainer.removeChild(previewContainer.firstChild);
-  }
+  previewContainer.innerHTML = "";
+
+  // 🔥 THIS LINE FIXES MOBILE BUG
+  event.target.value = "";
 
   const files = Array.from(event.target.files);
 
