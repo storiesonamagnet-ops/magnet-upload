@@ -67,67 +67,63 @@ input.addEventListener("change", (e) => {
   document.getElementById("submitPhotos").style.display = "inline-block";
 
   Array.from(e.target.files).forEach(file => {
+    // IIFE to create a fresh scope for each file
+    (function(file) {
 
-    const wrapper = document.createElement("div");
-    wrapper.style.marginTop = "20px";
+      const wrapper = document.createElement("div");
+      wrapper.style.marginTop = "20px";
 
-    const img = document.createElement("img");
-    img.style.borderRadius = "8px";
+      const img = document.createElement("img");
+      img.src = URL.createObjectURL(file);
 
-    // USE FileReader for preview as well to prevent intermittent issues
-    const reader = new FileReader();
-    reader.onload = function(event) {
-      img.src = event.target.result;
-    };
-    reader.readAsDataURL(file);
+      const btn = document.createElement("button");
+      btn.innerText = "Edit";
+      btn.style.marginLeft = "10px";
 
-    const btn = document.createElement("button");
-    btn.innerText = "Edit";
-    btn.style.marginLeft = "10px";
+      btn.onclick = () => {
+        currentImageElement = img;
+        currentFile = file;
 
-    btn.onclick = () => {
-      currentImageElement = img;
-      currentFile = file;
+        if (cropper) {
+          cropper.destroy();
+          cropper = null;
+        }
 
-      if (cropper) {
-        cropper.destroy();
-        cropper = null;
-      }
+        imageContainer.innerHTML = "";
 
-      imageContainer.innerHTML = "";
+        // USE FileReader to reliably load each image for cropper
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          const newImg = document.createElement("img");
+          newImg.style.maxWidth = "90%";
+          newImg.style.maxHeight = "70vh";
+          newImg.src = event.target.result;
 
-      // Load image for cropper using FileReader
-      const readerCrop = new FileReader();
-      readerCrop.onload = function(event) {
-        const newImg = document.createElement("img");
-        newImg.style.maxWidth = "90%";
-        newImg.style.maxHeight = "70vh";
-        newImg.src = event.target.result;
+          imageContainer.appendChild(newImg);
+          document.getElementById("cropModal").style.display = "block";
 
-        imageContainer.appendChild(newImg);
-        document.getElementById("cropModal").style.display = "block";
-
-        setTimeout(() => {
-          cropper = new Cropper(newImg, {
-            aspectRatio: 1,
-            viewMode: 1,
-            dragMode: "move",
-            autoCropArea: 1,
-            cropBoxMovable: false,
-            cropBoxResizable: false,
-            movable: true,
-            zoomable: true,
-            background: false
-          });
-        }, 200);
+          setTimeout(() => {
+            cropper = new Cropper(newImg, {
+              aspectRatio: 1,
+              viewMode: 1,
+              dragMode: "move",
+              autoCropArea: 1,
+              cropBoxMovable: false,
+              cropBoxResizable: false,
+              movable: true,
+              zoomable: true,
+              background: false
+            });
+          }, 200);
+        };
+        reader.readAsDataURL(currentFile);
       };
-      readerCrop.readAsDataURL(currentFile);
-    };
 
-    wrapper.appendChild(img);
-    wrapper.appendChild(btn);
-    preview.appendChild(wrapper);
+      wrapper.appendChild(img);
+      wrapper.appendChild(btn);
+      preview.appendChild(wrapper);
 
+    })(file); // end of IIFE
   });
 });
 
