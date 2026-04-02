@@ -89,27 +89,32 @@ input.addEventListener("change", (e) => {
 
       imageContainer.innerHTML = "";
 
-      const newImg = document.createElement("img");
-      newImg.style.maxWidth = "90%";
-      newImg.style.maxHeight = "70vh";
-      newImg.src = URL.createObjectURL(file);
+      // Use FileReader instead of URL.createObjectURL for mobile reliability
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        const newImg = document.createElement("img");
+        newImg.style.maxWidth = "90%";
+        newImg.style.maxHeight = "70vh";
+        newImg.src = event.target.result;
 
-      imageContainer.appendChild(newImg);
-      document.getElementById("cropModal").style.display = "block";
+        imageContainer.appendChild(newImg);
+        document.getElementById("cropModal").style.display = "block";
 
-      setTimeout(() => {
-        cropper = new Cropper(newImg, {
-          aspectRatio: 1,
-          viewMode: 1,
-          dragMode: "move",
-          autoCropArea: 1,
-          cropBoxMovable: false,
-          cropBoxResizable: false,
-          movable: true,
-          zoomable: true,
-          background: false
-        });
-      }, 200);
+        setTimeout(() => {
+          cropper = new Cropper(newImg, {
+            aspectRatio: 1,
+            viewMode: 1,
+            dragMode: "move",
+            autoCropArea: 1,
+            cropBoxMovable: false,
+            cropBoxResizable: false,
+            movable: true,
+            zoomable: true,
+            background: false
+          });
+        }, 200);
+      };
+      reader.readAsDataURL(currentFile);
     };
 
     wrapper.appendChild(img);
