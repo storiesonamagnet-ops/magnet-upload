@@ -4,19 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Stories on a Magnet Upload</title>
-
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
-
 <style>
 body{font-family:Arial;text-align:center;background:#f4f4f4;margin:0;padding:40px;}
 .container{background:white;max-width:500px;margin:auto;padding:30px;border-radius:10px;box-shadow:0 5px 15px rgba(0,0,0,0.1);}
 button{background:#000;color:#fff;border:none;padding:15px 25px;font-size:18px;border-radius:8px;cursor:pointer;}
 #previewContainer img{margin-top:10px;border-radius:8px;width:150px;}
-input[type=text]{padding:12px;font-size:18px;width:80%;border-radius:6px;border:1px solid #ccc;margin-top:15px;display:none;}
+input[type=text]{padding:12px;font-size:18px;width:80%;border-radius:6px;border:1px solid #ccc;margin-top:15px;}
 </style>
 </head>
-
 <body>
 
 <div class="container">
@@ -30,7 +27,7 @@ Select Photos
 
 <div id="previewContainer"></div>
 
-<!-- Moved Name Input below preview container -->
+<!-- Added Name Input -->
 <input type="text" id="customerName" placeholder="Enter Your Name">
 
 <br><br>
@@ -66,11 +63,7 @@ input.addEventListener("change", (e) => {
   preview.innerHTML = "";
   document.getElementById("submitPhotos").style.display = "inline-block";
 
-  // Show name input below preview container
-  customerNameInput.style.display = "inline-block";
-
   Array.from(e.target.files).forEach(file => {
-
     const wrapper = document.createElement("div");
     wrapper.style.marginTop = "20px";
 
@@ -123,7 +116,6 @@ input.addEventListener("change", (e) => {
     wrapper.appendChild(img);
     wrapper.appendChild(btn);
     preview.appendChild(wrapper);
-
   });
 });
 
@@ -171,7 +163,6 @@ document.getElementById("submitPhotos").addEventListener("click", async () => {
   // Reset preview for next attempt
   preview.innerHTML = "";
   customerNameInput.value = "";
-  customerNameInput.style.display = "none"; // hide again for next round
   document.getElementById("submitPhotos").style.display = "none";
 });
 </script>
