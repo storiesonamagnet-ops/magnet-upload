@@ -4,8 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Stories on a Magnet Upload</title>
+
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+
 <style>
 body{font-family:Arial;text-align:center;background:#f4f4f4;margin:0;padding:40px;}
 .container{background:white;max-width:500px;margin:auto;padding:30px;border-radius:10px;box-shadow:0 5px 15px rgba(0,0,0,0.1);}
@@ -14,6 +16,7 @@ button{background:#000;color:#fff;border:none;padding:15px 25px;font-size:18px;b
 input[type=text]{padding:12px;font-size:18px;width:80%;border-radius:6px;border:1px solid #ccc;margin-top:15px;}
 </style>
 </head>
+
 <body>
 
 <div class="container">
@@ -64,6 +67,7 @@ input.addEventListener("change", (e) => {
   document.getElementById("submitPhotos").style.display = "inline-block";
 
   Array.from(e.target.files).forEach(file => {
+
     const wrapper = document.createElement("div");
     wrapper.style.marginTop = "20px";
 
@@ -116,6 +120,7 @@ input.addEventListener("change", (e) => {
     wrapper.appendChild(img);
     wrapper.appendChild(btn);
     preview.appendChild(wrapper);
+
   });
 });
 
