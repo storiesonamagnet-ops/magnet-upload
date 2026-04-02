@@ -9,34 +9,42 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
 
 <style>
-body{font-family:Arial;text-align:center;background:#f4f4f4;margin:0;padding:40px;}
+body{font-family:Arial,sans-serif;text-align:center;background:#f4f4f4;margin:0;padding:40px;}
 .container{background:white;max-width:500px;margin:auto;padding:30px;border-radius:10px;box-shadow:0 5px 15px rgba(0,0,0,0.1);}
+h1{margin-bottom:10px;}
+.event{color:#777;margin-bottom:25px;}
 button{background:#000;color:#fff;border:none;padding:15px 25px;font-size:18px;border-radius:8px;cursor:pointer;}
+button:hover{opacity:.85;}
 #previewContainer img{margin-top:10px;border-radius:8px;width:150px;}
+#cropModal img{max-width:90%;max-height:70vh;}
 </style>
 </head>
 
 <body>
 
 <div class="container">
+
 <h1>Stories on a Magnet</h1>
+<div class="event" id="eventName">Neon Moon Market • Feb 28</div>
 
 <label id="selectPhotosBtn" style="display:inline-block;background:#000;color:#fff;padding:15px 25px;border-radius:8px;cursor:pointer;">
 Select Photos
 </label>
-
-<input type="file" id="photoInput" accept="image/*" style="display:none;" multiple>
+<input type="file" id="photoInput" accept="image/*" multiple style="display:none;">
 
 <div id="previewContainer"></div>
 
 <br><br>
-<button id="submitPhotos" style="display:none;">Submit Photos</button>
+<div id="nameScreen" style="display:none;">
+  <h2>Enter Your Name</h2>
+  <input id="customerName" type="text" placeholder="Your Name" style="padding:12px;font-size:18px;width:80%;border-radius:6px;border:1px solid #ccc;">
+  <br><br>
+  <button id="submitPhotos">Submit Photos</button>
+</div>
 
-<div id="cropModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#fff;z-index:999;padding:20px;text-align:center;">
+<div id="cropModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:white;z-index:999;padding:20px;text-align:center;">
   <h2>Edit Photo</h2>
-
   <div id="imageContainer"></div>
-
   <br><br>
   <button id="saveCrop">Save Crop</button>
 </div>
@@ -46,100 +54,133 @@ Select Photos
 <script>
 let cropper = null;
 let currentImageElement = null;
+let currentFile = null;
 
-const input = document.getElementById("photoInput");
-const preview = document.getElementById("previewContainer");
+const photoInput = document.getElementById("photoInput");
+const selectBtn = document.getElementById("selectPhotosBtn");
+const previewContainer = document.getElementById("previewContainer");
+const cropModal = document.getElementById("cropModal");
 const imageContainer = document.getElementById("imageContainer");
+const saveCropBtn = document.getElementById("saveCrop");
+const submitBtn = document.getElementById("submitPhotos");
+const nameScreen = document.getElementById("nameScreen");
+const customerNameInput = document.getElementById("customerName");
 
-// Open file picker
-document.getElementById("selectPhotosBtn").onclick = () => {
-  input.value = "";
-  input.click();
+// OPEN FILE PICKER
+selectBtn.onclick = () => {
+  photoInput.value = "";
+  photoInput.click();
 };
 
-// Handle file selection
-input.addEventListener("change", (e) => {
-  preview.innerHTML = "";
-  document.getElementById("submitPhotos").style.display = "inline-block";
+// HANDLE FILE SELECTION
+photoInput.addEventListener("change", (e) => {
+  previewContainer.innerHTML = "";
+  nameScreen.style.display = "block";
 
   Array.from(e.target.files).forEach(file => {
+    const reader = new FileReader();
 
-    const wrapper = document.createElement("div");
-    wrapper.style.marginTop = "20px";
+    reader.onload = function(event) {
+      const wrapper = document.createElement("div");
+      wrapper.style.marginTop = "20px";
 
-    const img = document.createElement("img");
-    img.src = URL.createObjectURL(file);
+      const img = document.createElement("img");
+      img.src = event.target.result;
 
-    const btn = document.createElement("button");
-    btn.innerText = "Edit";
-    btn.style.marginLeft = "10px";
+      const editBtn = document.createElement("button");
+      editBtn.innerText = "Edit";
+      editBtn.style.marginLeft = "10px";
 
-    btn.onclick = () => {
+      editBtn.onclick = () => {
+        currentImageElement = img;
+        currentFile = file;
 
-      currentImageElement = img;
+        // DESTROY OLD CROPPER
+        if (cropper) { cropper.destroy(); cropper = null; }
 
-      // DESTROY old cropper
-      if (cropper) {
-        cropper.destroy();
-        cropper = null;
-      }
+        // CLEAR MODAL CONTAINER
+        imageContainer.innerHTML = "";
 
-      // CLEAR container (THIS IS THE FIX)
-      imageContainer.innerHTML = "";
+        // CREATE NEW IMAGE FOR CROPPER
+        const cropImg = document.createElement("img");
 
-      // CREATE A BRAND NEW IMAGE ELEMENT EVERY TIME
-      const newImg = document.createElement("img");
-      newImg.style.maxWidth = "90%";
-      newImg.style.maxHeight = "70vh";
+        // Load full file data
+        const readerFull = new FileReader();
+        readerFull.onload = function(eFull) {
+          cropImg.src = eFull.target.result;
 
-      const url = URL.createObjectURL(file);
-      newImg.src = url;
+          cropModal.style.display = "block";
 
-      imageContainer.appendChild(newImg);
+          setTimeout(() => {
+            cropper = new Cropper(cropImg, {
+              aspectRatio: 1,
+              viewMode: 1,
+              dragMode: 'move',
+              autoCropArea: 1,
+              cropBoxMovable: false,
+              cropBoxResizable: false,
+              movable: true,
+              zoomable: true,
+              background: false
+            });
+          }, 200);
+        };
+        readerFull.readAsDataURL(file);
 
-      // SHOW MODAL FIRST
-      document.getElementById("cropModal").style.display = "block";
+        imageContainer.appendChild(cropImg);
+      };
 
-      // THEN INIT CROPPER (AFTER RENDER)
-      setTimeout(() => {
-        cropper = new Cropper(newImg, {
-          aspectRatio: 1,
-          viewMode: 1,
-          dragMode: "move",
-          autoCropArea: 1,
-          cropBoxMovable: false,
-          cropBoxResizable: false,
-          movable: true,
-          zoomable: true,
-          background: false
-        });
-      }, 200);
+      wrapper.appendChild(img);
+      wrapper.appendChild(editBtn);
+      previewContainer.appendChild(wrapper);
     };
-
-    wrapper.appendChild(img);
-    wrapper.appendChild(btn);
-    preview.appendChild(wrapper);
-
+    reader.readAsDataURL(file);
   });
 });
 
-// Save crop
-document.getElementById("saveCrop").onclick = () => {
-
-  if (!cropper) return;
-
-  const canvas = cropper.getCroppedCanvas({
-    width: 1200,
-    height: 1200
-  });
-
+// SAVE CROPPED IMAGE
+saveCropBtn.onclick = () => {
+  if (!cropper || !currentImageElement) return;
+  const canvas = cropper.getCroppedCanvas({ width: 1200, height: 1200 });
   currentImageElement.src = canvas.toDataURL("image/jpeg", 0.95);
 
   cropper.destroy();
   cropper = null;
-
-  document.getElementById("cropModal").style.display = "none";
+  cropModal.style.display = "none";
   imageContainer.innerHTML = "";
+};
+
+// SUBMIT PHOTOS
+submitBtn.onclick = async () => {
+  const name = customerNameInput.value.trim() || "NoName";
+  const images = document.querySelectorAll("#previewContainer img");
+
+  if (images.length === 0) { alert("No images to upload"); return; }
+
+  previewContainer.innerHTML = "<h3>Upload in progress...</h3>";
+
+  const base64Array = Array.from(images).map(img => img.src);
+
+  try {
+    await fetch("https://script.google.com/macros/s/AKfycbyRX1YdjnGHm94M2LCFg8Wq4XCjPLguCZxTucwlH5J05tfGQwUnqi2WoMmo0XKmnjt3/exec?name=" + encodeURIComponent(name), {
+      method: "POST",
+      body: JSON.stringify(base64Array),
+      mode: "no-cors"
+    });
+
+    previewContainer.innerHTML = "<h3>Upload sent ✅</h3>";
+
+    // RESET FORM FOR NEXT CUSTOMER
+    setTimeout(() => {
+      previewContainer.innerHTML = "";
+      nameScreen.style.display = "none";
+      customerNameInput.value = "";
+      photoInput.value = "";
+    }, 2000);
+
+  } catch (err) {
+    previewContainer.innerHTML = "<h3>Upload failed: " + err + "</h3>";
+  }
 };
 </script>
 
