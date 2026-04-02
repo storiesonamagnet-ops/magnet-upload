@@ -48,7 +48,6 @@ Select Photos
 <script>
 let cropper = null;
 let currentImageElement = null;
-let currentFile = null;
 
 const input = document.getElementById("photoInput");
 const preview = document.getElementById("previewContainer");
@@ -67,63 +66,60 @@ input.addEventListener("change", (e) => {
   document.getElementById("submitPhotos").style.display = "inline-block";
 
   Array.from(e.target.files).forEach(file => {
-    // IIFE to create a fresh scope for each file
-    (function(file) {
 
-      const wrapper = document.createElement("div");
-      wrapper.style.marginTop = "20px";
+    const wrapper = document.createElement("div");
+    wrapper.style.marginTop = "20px";
 
-      const img = document.createElement("img");
-      img.src = URL.createObjectURL(file);
+    const img = document.createElement("img");
+    img.src = URL.createObjectURL(file);
 
-      const btn = document.createElement("button");
-      btn.innerText = "Edit";
-      btn.style.marginLeft = "10px";
+    const btn = document.createElement("button");
+    btn.innerText = "Edit";
+    btn.style.marginLeft = "10px";
 
-      btn.onclick = () => {
-        currentImageElement = img;
-        currentFile = file;
+    btn.onclick = () => {
+      // Scoped variables per click
+      const fileCopy = file;
+      const imgCopy = img;
 
-        if (cropper) {
-          cropper.destroy();
-          cropper = null;
-        }
+      if (cropper) {
+        cropper.destroy();
+        cropper = null;
+      }
 
-        imageContainer.innerHTML = "";
+      imageContainer.innerHTML = "";
 
-        // USE FileReader to reliably load each image for cropper
-        const reader = new FileReader();
-        reader.onload = function(event) {
-          const newImg = document.createElement("img");
-          newImg.style.maxWidth = "90%";
-          newImg.style.maxHeight = "70vh";
-          newImg.src = event.target.result;
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        const newImg = document.createElement("img");
+        newImg.style.maxWidth = "90%";
+        newImg.style.maxHeight = "70vh";
+        newImg.src = event.target.result;
 
-          imageContainer.appendChild(newImg);
-          document.getElementById("cropModal").style.display = "block";
+        imageContainer.appendChild(newImg);
+        document.getElementById("cropModal").style.display = "block";
 
-          setTimeout(() => {
-            cropper = new Cropper(newImg, {
-              aspectRatio: 1,
-              viewMode: 1,
-              dragMode: "move",
-              autoCropArea: 1,
-              cropBoxMovable: false,
-              cropBoxResizable: false,
-              movable: true,
-              zoomable: true,
-              background: false
-            });
-          }, 200);
-        };
-        reader.readAsDataURL(currentFile);
+        setTimeout(() => {
+          cropper = new Cropper(newImg, {
+            aspectRatio: 1,
+            viewMode: 1,
+            dragMode: "move",
+            autoCropArea: 1,
+            cropBoxMovable: false,
+            cropBoxResizable: false,
+            movable: true,
+            zoomable: true,
+            background: false
+          });
+          currentImageElement = imgCopy;
+        }, 200);
       };
+      reader.readAsDataURL(fileCopy);
+    };
 
-      wrapper.appendChild(img);
-      wrapper.appendChild(btn);
-      preview.appendChild(wrapper);
-
-    })(file); // end of IIFE
+    wrapper.appendChild(img);
+    wrapper.appendChild(btn);
+    preview.appendChild(wrapper);
   });
 });
 
@@ -136,7 +132,9 @@ document.getElementById("saveCrop").onclick = () => {
     height: 1200
   });
 
-  currentImageElement.src = canvas.toDataURL("image/jpeg", 0.95);
+  if (currentImageElement) {
+    currentImageElement.src = canvas.toDataURL("image/jpeg", 0.95);
+  }
 
   cropper.destroy();
   cropper = null;
