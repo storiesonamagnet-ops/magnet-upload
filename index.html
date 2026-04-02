@@ -99,8 +99,7 @@ input.addEventListener("change", (e) => {
         imageContainer.appendChild(newImg);
         document.getElementById("cropModal").style.display = "block";
 
-        // ✅ New reliable fix: wait for image to load before initializing Cropper
-        newImg.onload = () => {
+        setTimeout(() => {
           cropper = new Cropper(newImg, {
             aspectRatio: 1,
             viewMode: 1,
@@ -113,7 +112,7 @@ input.addEventListener("change", (e) => {
             background: false
           });
           currentImageElement = imgCopy;
-        };
+        }, 200);
       };
       reader.readAsDataURL(fileCopy);
     };
