@@ -32,11 +32,13 @@ Select Photos
 <br><br>
 <button id="submitPhotos" style="display:none;">Submit Photos</button>
 
-<div id="cropModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#fff;z-index:999;padding:20px;">
-<h2>Edit Photo</h2>
-<img id="cropImage" style="max-width:90%;max-height:70vh;">
-<br><br>
-<button id="saveCrop">Save Crop</button>
+<div id="cropModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#fff;z-index:999;padding:20px;text-align:center;">
+  <h2>Edit Photo</h2>
+
+  <div id="imageContainer"></div>
+
+  <br><br>
+  <button id="saveCrop">Save Crop</button>
 </div>
 
 </div>
@@ -44,19 +46,18 @@ Select Photos
 <script>
 let cropper = null;
 let currentImageElement = null;
-let currentObjectURL = null;
 
 const input = document.getElementById("photoInput");
 const preview = document.getElementById("previewContainer");
-const cropImage = document.getElementById("cropImage");
+const imageContainer = document.getElementById("imageContainer");
 
-// STEP 1: ALWAYS fully reset input before opening
+// Open file picker
 document.getElementById("selectPhotosBtn").onclick = () => {
   input.value = "";
   input.click();
 };
 
-// STEP 2: handle selection
+// Handle file selection
 input.addEventListener("change", (e) => {
   preview.innerHTML = "";
   document.getElementById("submitPhotos").style.display = "inline-block";
@@ -67,8 +68,7 @@ input.addEventListener("change", (e) => {
     wrapper.style.marginTop = "20px";
 
     const img = document.createElement("img");
-    const url = URL.createObjectURL(file);
-    img.src = url;
+    img.src = URL.createObjectURL(file);
 
     const btn = document.createElement("button");
     btn.innerText = "Edit";
@@ -78,50 +78,42 @@ input.addEventListener("change", (e) => {
 
       currentImageElement = img;
 
-      // STEP 3: HARD RESET EVERYTHING
+      // DESTROY old cropper
       if (cropper) {
         cropper.destroy();
         cropper = null;
       }
 
-      if (currentObjectURL) {
-        URL.revokeObjectURL(currentObjectURL);
-        currentObjectURL = null;
-      }
+      // CLEAR container (THIS IS THE FIX)
+      imageContainer.innerHTML = "";
 
-      cropImage.src = "";
+      // CREATE A BRAND NEW IMAGE ELEMENT EVERY TIME
+      const newImg = document.createElement("img");
+      newImg.style.maxWidth = "90%";
+      newImg.style.maxHeight = "70vh";
 
-      // STEP 4: CLONE FILE (CRITICAL FIX)
-      const freshFile = new File([file], file.name, { type: file.type });
-      currentObjectURL = URL.createObjectURL(freshFile);
+      const url = URL.createObjectURL(file);
+      newImg.src = url;
 
-      // FORCE REPAINT
-      setTimeout(() => {
-        cropImage.src = currentObjectURL;
+      imageContainer.appendChild(newImg);
 
-        cropImage.onload = () => {
-
-          setTimeout(() => {
-
-            cropper = new Cropper(cropImage, {
-              aspectRatio: 1,
-              viewMode: 1,
-              dragMode: "move",
-              autoCropArea: 1,
-              cropBoxMovable: false,
-              cropBoxResizable: false,
-              movable: true,
-              zoomable: true,
-              background: false
-            });
-
-          }, 100);
-
-        };
-
-      }, 50);
-
+      // SHOW MODAL FIRST
       document.getElementById("cropModal").style.display = "block";
+
+      // THEN INIT CROPPER (AFTER RENDER)
+      setTimeout(() => {
+        cropper = new Cropper(newImg, {
+          aspectRatio: 1,
+          viewMode: 1,
+          dragMode: "move",
+          autoCropArea: 1,
+          cropBoxMovable: false,
+          cropBoxResizable: false,
+          movable: true,
+          zoomable: true,
+          background: false
+        });
+      }, 200);
     };
 
     wrapper.appendChild(img);
@@ -131,7 +123,7 @@ input.addEventListener("change", (e) => {
   });
 });
 
-// STEP 5: save crop
+// Save crop
 document.getElementById("saveCrop").onclick = () => {
 
   if (!cropper) return;
@@ -146,14 +138,8 @@ document.getElementById("saveCrop").onclick = () => {
   cropper.destroy();
   cropper = null;
 
-  if (currentObjectURL) {
-    URL.revokeObjectURL(currentObjectURL);
-    currentObjectURL = null;
-  }
-
-  cropImage.src = "";
-
   document.getElementById("cropModal").style.display = "none";
+  imageContainer.innerHTML = "";
 };
 </script>
 
