@@ -30,8 +30,8 @@ Select Photos
 
 <div id="previewContainer"></div>
 
-<!-- Added Name Input -->
-<input type="text" id="customerName" placeholder="Enter Your Name">
+<!-- Added Name Input, hidden by default -->
+<input type="text" id="customerName" placeholder="Enter Your Name" style="display:none;">
 
 <br><br>
 <button id="submitPhotos" style="display:none;">Submit Photos</button>
@@ -65,6 +65,7 @@ document.getElementById("selectPhotosBtn").onclick = () => {
 input.addEventListener("change", (e) => {
   preview.innerHTML = "";
   document.getElementById("submitPhotos").style.display = "inline-block";
+  customerNameInput.style.display = "inline-block"; // <-- show name input when photos selected
 
   Array.from(e.target.files).forEach(file => {
 
@@ -168,6 +169,7 @@ document.getElementById("submitPhotos").addEventListener("click", async () => {
   // Reset preview for next attempt
   preview.innerHTML = "";
   customerNameInput.value = "";
+  customerNameInput.style.display = "none"; // <-- hide name input again after submission
   document.getElementById("submitPhotos").style.display = "none";
 });
 </script>
