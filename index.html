@@ -89,7 +89,7 @@ input.addEventListener("change", (e) => {
 
       imageContainer.innerHTML = "";
 
-      // Use FileReader instead of URL.createObjectURL for mobile reliability
+      // USE FileReader to reliably load each image for cropper
       const reader = new FileReader();
       reader.onload = function(event) {
         const newImg = document.createElement("img");
