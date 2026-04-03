@@ -35,6 +35,9 @@ Select Photos
 
 <br><br>
 <button id="submitPhotos" style="display:none;">Submit Photos</button>
+<p id="uploadStatus" style="display:none;margin-top:15px;font-weight:bold;">
+Uploading... Do not leave this page.
+</p>
 
 <div id="cropModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#fff;z-index:999;padding:20px;text-align:center;">
   <h2>Edit Photo</h2>
@@ -155,21 +158,34 @@ document.getElementById("submitPhotos").addEventListener("click", async () => {
 
   const base64Array = Array.from(images).map(img => img.src);
 
-  try {
-    await fetch("https://script.google.com/macros/s/AKfycbyRX1YdjnGHm94M2LCFg8Wq4XCjPLguCZxTucwlH5J05tfGQwUnqi2WoMmo0XKmnjt3/exec?name=" + encodeURIComponent(customerName), {
-      method: "POST",
-      body: JSON.stringify(base64Array),
-      mode: "no-cors"
-    });
-    alert("Upload sent ✅");
-  } catch (err) {
-    alert("Upload failed: " + err);
-  }
+  const status = document.getElementById("uploadStatus");
 
-  // Reset preview for next attempt
+// Show message
+status.style.display = "block";
+status.innerText = "Uploading... Do not leave this page.";
+
+try {
+  await fetch("https://script.google.com/macros/s/AKfycbyRX1YdjnGHm94M2LCFg8Wq4XCjPLguCZxTucwlH5J05tfGQwUnqi2WoMmo0XKmnjt3/exec?name=" + encodeURIComponent(customerName), {
+    method: "POST",
+    body: JSON.stringify(base64Array),
+    mode: "no-cors"
+  });
+
+  status.innerText = "Upload complete ✅";
+
+} catch (err) {
+  status.innerText = "Upload failed ❌";
+}
+
+  // Reset preview for next attempt AFTER short delay
+setTimeout(() => {
   preview.innerHTML = "";
   customerNameInput.value = "";
   document.getElementById("submitPhotos").style.display = "none";
+
+  status.style.display = "none";
+  status.innerText = "Uploading... Do not leave this page.";
+}, 2000);
 });
 </script>
 
