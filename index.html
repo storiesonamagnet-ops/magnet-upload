@@ -24,20 +24,19 @@ body{
   background:white;
   max-width:600px;
   width:95%;
-  padding:70px 35px;
-  border-radius:20px;
-  box-shadow:0 12px 35px rgba(0,0,0,0.15);
-  margin: auto;
+  padding:50px 20px;
+  border-radius:18px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.12);
 }
 h1{
-  font-size:72px;
-  margin-bottom:40px;
+  font-size:59px;
+  margin-bottom:35px;
 }
-button{background:#000;color:#fff;border:none;padding:28px 40px;font-size:32px;border-radius:16px;cursor:pointer;width: 100%; /* full width for big tap target */
+button{background:#c2d2c1;color:#fff;border:none;padding:12px 20px;font-size:12px;border-radius:20px;cursor:pointer;
   text-align: center;
   margin-bottom: 25px;}
 #previewContainer img{margin-top:10px;border-radius:8px;width:150px;}
-input[type=text]{padding:22px;font-size:26px;width:100%;border-radius:14px;border:1px solid #ccc;margin-top:25px;}
+input[type=text]{padding:8px;font-size:26px;width:98%;border-radius:14px;border:1px solid #ccc;margin-top:25px;}
 </style>
 </head>
 
@@ -46,8 +45,10 @@ input[type=text]{padding:22px;font-size:26px;width:100%;border-radius:14px;borde
 <div class="container">
 <h1>Stories on a Magnet</h1>
 
-<label id="selectPhotosBtn" style="display:inline-block;background:#000;color:#fff;padding:15px 25px;border-radius:8px;cursor:pointer;">
-Select Photos
+<label id="selectPhotosBtn" style="display:inline-block;background:#e8b1af;color:#fff;padding:10px 30px;font-size:22px;border-radius:16px;cursor:pointer;width: 90%; /* full width for big tap target */
+  text-align: center;
+  margin-bottom: 25px;">
+UPLOAD PHOTOS
 </label>
 
 <input type="file" id="photoInput" accept="image/*" style="display:none;" multiple>
@@ -101,7 +102,7 @@ input.addEventListener("change", (e) => {
     img.src = URL.createObjectURL(file);
 
     const btn = document.createElement("button");
-    btn.innerText = "Edit";
+    btn.innerText = "CROP IMAGE";
     btn.style.marginLeft = "10px";
 
     btn.onclick = () => {
