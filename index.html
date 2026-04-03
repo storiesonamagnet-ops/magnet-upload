@@ -95,8 +95,11 @@ input.addEventListener("change", (e) => {
       const reader = new FileReader();
       reader.onload = function(event) {
         const newImg = document.createElement("img");
-        newImg.style.maxWidth = "90%";
-        newImg.style.maxHeight = "70vh";
+        newImg.style.maxWidth = "75%";
+        newImg.style.maxHeight = "60vh";
+        newImg.style.display = "block";
+        newImg.style.margin = "0 auto";
+        newImg.style.borderRadius = "12px";
         newImg.src = event.target.result;
 
         imageContainer.appendChild(newImg);
