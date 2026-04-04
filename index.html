@@ -256,6 +256,13 @@ deleteBtn.style.cursor = "pointer";
     // Reset to "home state"
     document.getElementById("submitPhotos").style.display = "none";
     customerNameInput.value = "";
+
+    // Show original SELECT PHOTOS button again
+    document.getElementById("selectPhotosBtn").style.display = "inline-block";
+
+    // Remove ADD MORE PHOTOS button if it exists
+    const addMore = document.getElementById("addMorePhotosBtn");
+    if (addMore) addMore.remove();
   }
 };
 
