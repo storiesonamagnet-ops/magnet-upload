@@ -22,7 +22,7 @@ body{
 }
 .container{
   background:white;
-  max-width:400px;
+  max-width:500px;
   width:95%;
   padding:30px 20px;
   border-radius:18px;
@@ -72,6 +72,29 @@ input[type=text]{padding:8px;font-size:26px;width:90%;border-radius:14px;border:
   color: #ff2a6d;           /* text color, change to any color you like */
   text-align: center;       /* center the text */
 }
+
+/* Select Photos Button */
+#selectPhotosBtn {
+  display: inline-block;
+  background-color: #e8b1af; /* button color */
+  color: #fff;               /* text color */
+  padding: 10px 20px;        /* size of button */
+  font-size: 26px;           /* text size */
+  border-radius: 18px;       /* rounded corners */
+  cursor: pointer;
+  width: 85%;                /* width of button */
+  max-width: 400px;          /* prevents it from getting too huge on desktop */
+  text-align: center;
+  margin-bottom: 25px;
+  margin-left: auto;
+  margin-right: auto;
+  transition: all 0.2s ease;
+}
+
+/* Optional hover effect */
+#selectPhotosBtn:hover {
+  opacity: 0.9;
+}
 </style>
 </head>
 
@@ -80,10 +103,8 @@ input[type=text]{padding:8px;font-size:26px;width:90%;border-radius:14px;border:
 <div class="container">
 <h1>Stories on a Magnet</h1>
 
-<label id="selectPhotosBtn" style="display:inline-block;background:#e8b1af;color:#fff;padding:10px 30px;font-size:22px;border-radius:16px;cursor:pointer;width: 90%; /* full width for big tap target */
-  text-align: center;
-  margin-bottom: 25px;">
-UPLOAD PHOTOS
+<label id="selectPhotosBtn">
+  SELECT PHOTOS
 </label>
 
 <input type="file" id="photoInput" accept="image/*" style="display:none;" multiple>
