@@ -159,7 +159,10 @@ input.addEventListener("change", (e) => {
   Array.from(e.target.files).forEach(file => {
 
     const wrapper = document.createElement("div");
-    wrapper.style.marginTop = "20px";
+wrapper.style.marginTop = "25px";
+wrapper.style.display = "flex";
+wrapper.style.flexDirection = "column";
+wrapper.style.alignItems = "center";
 
     const img = document.createElement("img");
 
@@ -198,9 +201,24 @@ reader.readAsDataURL(file);
 
     const deleteBtn = document.createElement("button");
     deleteBtn.innerText = "DELETE PHOTO";
-    deleteBtn.style.marginLeft = "10px";
-    deleteBtn.style.background = "#ff6b6b"; // soft red
-    btn.style.marginLeft = "10px";
+    const buttonRow = document.createElement("div");
+buttonRow.style.display = "flex";
+buttonRow.style.justifyContent = "center";
+buttonRow.style.gap = "10px";
+buttonRow.style.marginTop = "10px";
+btn.innerText = "EDIT CROP";
+btn.style.background = "#c2d2c1";
+btn.style.fontSize = "12px";
+btn.style.padding = "8px 14px";
+btn.style.borderRadius = "14px";
+btn.style.cursor = "pointer";
+
+deleteBtn.innerText = "DELETE";
+deleteBtn.style.background = "#ff6b6b";
+deleteBtn.style.fontSize = "12px";
+deleteBtn.style.padding = "8px 14px";
+deleteBtn.style.borderRadius = "14px";
+deleteBtn.style.cursor = "pointer";
 
     deleteBtn.onclick = () => {
   wrapper.remove();
@@ -257,9 +275,11 @@ reader.readAsDataURL(file);
       reader.readAsDataURL(fileCopy);
     };
 
-    wrapper.appendChild(img);
-    wrapper.appendChild(btn);
-    wrapper.appendChild(deleteBtn);
+    buttonRow.appendChild(btn);
+buttonRow.appendChild(deleteBtn);
+
+wrapper.appendChild(img);
+wrapper.appendChild(buttonRow);
     preview.appendChild(wrapper);
   });
 });
