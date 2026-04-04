@@ -70,6 +70,7 @@ button{background:#c2d2c1;color:#fff;border:none;padding:12px 20px;font-size:12p
   background: #fff;            /* ensures clean edge */
   box-shadow: 0 4px 10px rgba(0,0,0,0.08); /* soft shadow */
 }
+
 /* NAME INPUT field Styles */
 input[type=text]{padding:8px;font-size:26px;width:90%;border-radius:14px;border:1px solid #ccc;margin-top:25px;}
 
@@ -109,7 +110,6 @@ input[type=text]{padding:8px;font-size:26px;width:90%;border-radius:14px;border:
 </head>
 
 <body>
-
 <div class="container">
 <h1>Stories on a Magnet</h1>
 
@@ -128,7 +128,7 @@ input[type=text]{padding:8px;font-size:26px;width:90%;border-radius:14px;border:
 <button id="submitPhotos">SUBMIT PHOTOS</button>
 <p id="uploadStatus">Uploading... Do not leave this page.</p>
 
-<div id="cropModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#fff;z-index:999;padding:20px;text-align:center;">
+<div id="cropModal" style="display:none;position:fixed;top:0;left:-1.2%;width:100%;height:100%;background:#fff;z-index:999;padding:20px;text-align:center;">
   <h2>Edit Photo</h2>
   <div id="imageContainer"></div>
   <br><br>
