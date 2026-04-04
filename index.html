@@ -195,7 +195,24 @@ reader.readAsDataURL(file);
 
     const btn = document.createElement("button");
     btn.innerText = "CROP IMAGE";
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.innerText = "DELETE PHOTO";
+    deleteBtn.style.marginLeft = "10px";
+    deleteBtn.style.background = "#ff6b6b"; // soft red
     btn.style.marginLeft = "10px";
+
+    deleteBtn.onclick = () => {
+  wrapper.remove();
+
+  const remainingImages = document.querySelectorAll("#previewContainer img");
+
+  if (remainingImages.length === 0) {
+    // Reset to "home state"
+    document.getElementById("submitPhotos").style.display = "none";
+    customerNameInput.value = "";
+  }
+};
 
     btn.onclick = () => {
       // Scoped variables per click
@@ -242,6 +259,7 @@ reader.readAsDataURL(file);
 
     wrapper.appendChild(img);
     wrapper.appendChild(btn);
+    wrapper.appendChild(deleteBtn);
     preview.appendChild(wrapper);
   });
 });
