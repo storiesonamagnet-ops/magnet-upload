@@ -191,6 +191,14 @@ wrapper.style.display = "flex";
 wrapper.style.flexDirection = "column";
 wrapper.style.alignItems = "center";
 
+// 1️⃣ Create the image header (counter)
+const header = document.createElement("div");
+header.style.fontSize = "16px";
+header.style.fontWeight = "bold";
+header.style.marginBottom = "8px";
+header.innerText = ""; // We'll update the number later
+wrapper.appendChild(header);
+
     const img = document.createElement("img");
 
 const reader = new FileReader();
@@ -249,6 +257,7 @@ deleteBtn.style.cursor = "pointer";
 
     deleteBtn.onclick = () => {
   wrapper.remove();
+  updateImageHeaders();
 
   const remainingImages = document.querySelectorAll("#previewContainer img");
 
@@ -315,6 +324,7 @@ buttonRow.appendChild(deleteBtn);
 wrapper.appendChild(img);
 wrapper.appendChild(buttonRow);
     preview.appendChild(wrapper);
+updateImageHeaders(); // <-- this updates the "Image 1, 2, 3" headers
   });
 });
 
@@ -379,6 +389,17 @@ setTimeout(() => {
   status.innerText = "Uploading... Do not leave this page.";
 }, 2000);
 });
+
+function updateImageHeaders() {
+  // Only select direct children of #previewContainer
+  const wrappers = preview.querySelectorAll("#previewContainer > div"); 
+  wrappers.forEach((wrapper, index) => {
+    const header = wrapper.querySelector("div"); // first div in wrapper is header
+    if (header) {
+      header.innerText = `Image ${index + 1}`;
+    }
+  });
+}
 </script>
 
 </body>
