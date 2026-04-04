@@ -154,7 +154,36 @@ input.addEventListener("change", (e) => {
     wrapper.style.marginTop = "20px";
 
     const img = document.createElement("img");
-    img.src = URL.createObjectURL(file);
+
+const reader = new FileReader();
+reader.onload = function(event) {
+  const tempImg = new Image();
+  tempImg.src = event.target.result;
+
+  tempImg.onload = function() {
+    const size = Math.min(tempImg.width, tempImg.height);
+
+    const canvas = document.createElement("canvas");
+    canvas.width = 1200;
+    canvas.height = 1200;
+
+    const ctx = canvas.getContext("2d");
+
+    // Center crop calculation
+    const sx = (tempImg.width - size) / 2;
+    const sy = (tempImg.height - size) / 2;
+
+    ctx.drawImage(
+      tempImg,
+      sx, sy, size, size,   // source crop (center square)
+      0, 0, 1200, 1200      // output size
+    );
+
+    img.src = canvas.toDataURL("image/jpeg", 0.95);
+  };
+};
+
+reader.readAsDataURL(file);
 
     const btn = document.createElement("button");
     btn.innerText = "CROP IMAGE";
