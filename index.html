@@ -122,7 +122,7 @@ input[type=text]{padding:8px;font-size:26px;width:90%;border-radius:14px;border:
 <div id="previewContainer"></div>
 
 <!-- Added Name Input -->
-<input type="text" id="customerName" placeholder="Enter Your Name">
+<input type="text" id="customerName" placeholder="Enter Your Name" required>
 
 <br><br>
 <button id="submitPhotos">SUBMIT PHOTOS</button>
@@ -351,7 +351,13 @@ document.getElementById("saveCrop").onclick = () => {
 // Submit photos
 document.getElementById("submitPhotos").addEventListener("click", async () => {
   const images = document.querySelectorAll("#previewContainer img");
-  const customerName = customerNameInput.value.trim() || "NoName";
+  const customerName = customerNameInput.value.trim();
+
+if (!customerName) {
+  alert("Please enter your name before submitting.");
+  customerNameInput.focus();
+  return; // stop submission
+}
 
   if (images.length === 0) {
     alert("No images to submit");
