@@ -60,6 +60,7 @@ button{background:#c2d2c1;color:#fff;border:none;padding:12px 20px;font-size:12p
   text-align: center;
   margin-bottom: 25px;}
 
+/* Preview image Styles */
 #previewContainer img{
   margin-top:10px;
   border-radius:12px;
@@ -153,7 +154,33 @@ document.getElementById("selectPhotosBtn").onclick = () => {
 
 // Handle file selection
 input.addEventListener("change", (e) => {
-  preview.innerHTML = "";
+  // 1️⃣ Hide original SELECT PHOTOS button
+document.getElementById("selectPhotosBtn").style.display = "none";
+
+// 2️⃣ Create ADD MORE PHOTOS button if it doesn't exist
+let addMoreBtn = document.getElementById("addMorePhotosBtn");
+if (!addMoreBtn) {
+  addMoreBtn = document.createElement("button");
+  addMoreBtn.id = "addMorePhotosBtn";
+  addMoreBtn.innerText = "ADD MORE PHOTOS";
+  addMoreBtn.style.display = "inline-block";
+  addMoreBtn.style.background = "#e8b1af";
+  addMoreBtn.style.color = "#fff";
+  addMoreBtn.style.padding = "10px 30px";
+  addMoreBtn.style.fontSize = "18px";
+  addMoreBtn.style.borderRadius = "16px";
+  addMoreBtn.style.cursor = "pointer";
+  addMoreBtn.style.marginTop = "20px";
+
+  // Add click handler
+  addMoreBtn.onclick = () => {
+    input.click();  // open file picker again
+  };
+
+  // Insert into page above previewContainer
+  document.querySelector(".container").insertBefore(addMoreBtn, document.getElementById("previewContainer"));
+}
+  // preview.innerHTML = ""; // <-- comment this out for “add more photos”
   document.getElementById("submitPhotos").style.display = "inline-block";
 
   Array.from(e.target.files).forEach(file => {
